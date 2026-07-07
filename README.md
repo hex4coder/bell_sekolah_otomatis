@@ -1,58 +1,229 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Bell Sekolah Otomatis
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistem penjadwalan bell sekolah otomatis berbasis web. Dibangun dengan **Laravel 13**, **Tailwind CSS**, **SQLite**, dan **Vite**. Dilengkapi panel admin untuk mengelola jadwal bell, audio assets, hari sekolah aktif, serta fitur bell darurat.
 
-## About Laravel
+## Fitur
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Jadwal Bell Otomatis** — Atur jadwal per hari (Senin–Sabtu) dengan waktu dan file audio masing-masing.
+- **Manajemen Audio** — Upload, edit nama, dan hapus file audio (MP3, WAV, OGG). File disimpan di `assets_audio/`.
+- **Hari Sekolah** — Aktif/nonaktifkan hari tertentu. Jadwal hanya tampil di halaman publik pada hari aktif.
+- **Copy Jadwal** — Salin jadwal dari satu hari ke hari lain.
+- **Bell Darurat** — Tombol di dashboard admin untuk memutar bell darurat. Otomatis mendeteksi jadwal bell pulang (nama mengandung "akhir") jika tidak ada audio yang dipilih. Audio dikirim ke halaman welcome via polling.
+- **Dark Mode** — Toggle dark/light mode dengan penyimpanan preferensi di `localStorage`.
+- **Multi User** — Registrasi user biasa; hanya admin (`is_admin = true`) yang bisa mengakses panel admin.
+- **Halaman Publik** — Welcome page menampilkan jadwal bell hari ini.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Persyaratan Sistem
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP ^8.3
+- Composer
+- Node.js & npm
+- SQLite (sudah termasuk di PHP)
+- Web server (Apache/Nginx) atau built-in server Laravel
 
-## Learning Laravel
+## Instalasi
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### 1. Clone repositori
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone https://github.com/username/bell_sekolah_otomatis.git
+cd bell_sekolah_otomatis
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 2. Install dependency PHP
 
-## Contributing
+```bash
+composer install --no-dev --optimize-autoloader
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 3. Install dependency frontend
 
-## Code of Conduct
+```bash
+npm install
+npm run build
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 4. Konfigurasi environment
 
-## Security Vulnerabilities
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Sesuaikan `.env` untuk production:
 
-## License
+```env
+APP_NAME="Bell Sekolah"
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://domain-anda.com
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+DB_CONNECTION=sqlite
+# SQLite: file database akan otomatis dibuat di database/database.sqlite
+```
+
+### 5. Buat database SQLite
+
+```bash
+touch database/database.sqlite
+php artisan migrate --force
+```
+
+### 6. Setup direktori audio
+
+```bash
+mkdir -p assets_audio
+```
+
+Letakkan file audio (MP3/WAV/OGG) di `assets_audio/`, lalu daftarkan lewat panel admin.
+
+### 7. Buat user admin
+
+```bash
+php artisan tinker --execute="
+\$user = new App\Models\User();
+\$user->name = 'Admin';
+\$user->email = 'admin@example.com';
+\$user->password = bcrypt('password123');
+\$user->is_admin = true;
+\$user->save();
+"
+```
+
+Ubah email dan password sesuai kebutuhan.
+
+### 8. Setup scheduler (WAJIB untuk bell otomatis)
+
+Laravel scheduler harus jalan setiap menit. Tambahkan cron job di server:
+
+```bash
+crontab -e
+```
+
+Lalu tambahkan baris berikut:
+
+```
+* * * * * cd /path/to/bell_sekolah_otomatis && php artisan schedule:run >> /dev/null 2>&1
+```
+
+> **Catatan:** Project ini menggunakan `QUEUE_CONNECTION=database` dan `CACHE_STORE=database`. Pastikan migration sudah dijalankan agar tabel queue dan cache tersedia.
+
+### 9. Queue worker (jika menggunakan antrian)
+
+Jika ada job yang di-queue, jalankan worker:
+
+```bash
+php artisan queue:work --daemon &
+```
+
+### 10. Hak akses direktori
+
+```bash
+chmod -R 775 storage bootstrap/cache assets_audio
+chown -R www-data:www-data storage bootstrap/cache assets_audio   # untuk Nginx/Apache
+```
+
+## Deployment dengan Web Server
+
+### Nginx
+
+```nginx
+server {
+    listen 80;
+    server_name domain-anda.com;
+    root /path/to/bell_sekolah_otomatis/public;
+
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.3-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+}
+```
+
+### Apache
+
+Pastikan mod_rewrite aktif, lalu upload project ke server. File `.htaccess` di folder `public/` sudah siap.
+
+## Struktur Direktori
+
+```
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   └── AdminController.php    # Semua logic panel admin
+│   │   └── Middleware/
+│   │       └── AdminMiddleware.php     # Middleware akses admin
+│   └── Models/
+│       ├── AudioAsset.php
+│       ├── BellSchedule.php
+│       ├── SchoolDay.php
+│       └── User.php
+├── assets_audio/                       # Folder penyimpanan file audio
+├── database/
+│   ├── migrations/                     # Migrasi tabel
+│   └── database.sqlite                 # Database SQLite
+├── resources/
+│   └── views/
+│       ├── admin/                      # View panel admin
+│       │   ├── audio/
+│       │   ├── schedules/
+│       │   ├── dashboard.blade.php
+│       │   └── school-days.blade.php
+│       ├── layouts/
+│       │   └── app.blade.php
+│       └── welcome.blade.php           # Halaman publik
+├── routes/
+│   └── web.php                         # Semua route
+└── tailwind.config.js                  # Konfigurasi Tailwind (dark mode class)
+```
+
+## Route API
+
+| Method | URL                            | Deskripsi                              |
+|--------|--------------------------------|----------------------------------------|
+| GET    | `/`                            | Halaman publik jadwal hari ini         |
+| GET    | `/audio/{filename}`            | Serve file audio                       |
+| GET    | `/api/emergency-bell`          | Polling bell darurat (dipanggil JS)    |
+| POST   | `/admin/bell-darurat`          | Trigger bell darurat                   |
+| POST   | `/admin/schedules`             | Tambah jadwal                          |
+| PUT    | `/admin/schedules/{id}`        | Update jadwal                          |
+| DELETE | `/admin/schedules/{id}`        | Hapus jadwal                           |
+| DELETE | `/admin/schedules/reset`       | Hapus semua jadwal                     |
+| DELETE | `/admin/schedules/day/{day}`   | Hapus jadwal per hari                  |
+| POST   | `/admin/schedules/copy`        | Copy jadwal antar hari                 |
+| POST   | `/admin/audio/upload`          | Upload file audio                      |
+| DELETE | `/admin/audio/{filename}`      | Hapus audio                            |
+| PUT    | `/admin/audio/{filename}/edit` | Edit nama audio                        |
+| GET    | `/admin/school-days`           | Lihat pengaturan hari sekolah          |
+| PUT    | `/admin/school-days`           | Update hari sekolah aktif              |
+
+## Maintenance
+
+### Backup database
+
+```bash
+cp database/database.sqlite database/backup-$(date +%Y%m%d).sqlite
+```
+
+### Clear cache
+
+```bash
+php artisan cache:clear
+php artisan config:clear
+php artisan view:clear
+```
+
+## Lisensi
+
+Proyek ini open-source dan dilisensikan di bawah [MIT license](https://opensource.org/licenses/MIT).
