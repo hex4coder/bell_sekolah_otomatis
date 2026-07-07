@@ -10,6 +10,7 @@ class BellScheduleSeeder extends Seeder
     public function run(): void
     {
         $audioMap = [
+            '5 Menit Awal Jam ke-1' => '5_menit_awal_jam_ke_1.wav',
             'Jam ke-1' => 'jam_ke_1.wav',
             'Jam ke-2' => 'jam_ke_2.wav',
             'Jam ke-3' => 'jam_ke_3.wav',
@@ -26,6 +27,7 @@ class BellScheduleSeeder extends Seeder
 
         $monday = [
             ['time' => '07:30', 'name' => 'Upacara Bendera'],
+            ['time' => '08:05', 'name' => '5 Menit Awal Jam ke-1'],
             ['time' => '08:10', 'name' => 'Jam ke-1'],
             ['time' => '08:50', 'name' => 'Jam ke-2'],
             ['time' => '09:30', 'name' => 'Jam ke-3'],
@@ -40,6 +42,7 @@ class BellScheduleSeeder extends Seeder
         ];
 
         $tueToThu = [
+            ['time' => '07:25', 'name' => '5 Menit Awal Jam ke-1'],
             ['time' => '07:30', 'name' => 'Jam ke-1'],
             ['time' => '08:10', 'name' => 'Jam ke-2'],
             ['time' => '08:50', 'name' => 'Jam ke-3'],
@@ -56,6 +59,7 @@ class BellScheduleSeeder extends Seeder
         ];
 
         $friday = [
+            ['time' => '07:25', 'name' => '5 Menit Awal Jam ke-1'],
             ['time' => '07:30', 'name' => 'Jam ke-1'],
             ['time' => '08:10', 'name' => 'Jam ke-2'],
             ['time' => '08:50', 'name' => 'Jam ke-3'],

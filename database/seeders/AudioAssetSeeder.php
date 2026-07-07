@@ -10,6 +10,7 @@ class AudioAssetSeeder extends Seeder
     public function run(): void
     {
         $files = [
+            '5_menit_awal_jam_ke_1.wav' => '5 Menit Awal Jam ke-1',
             'jam_ke_1.wav' => 'Jam ke-1',
             'jam_ke_2.wav' => 'Jam ke-2',
             'jam_ke_3.wav' => 'Jam ke-3',
