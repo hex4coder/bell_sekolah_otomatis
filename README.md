@@ -226,4 +226,4 @@ php artisan view:clear
 
 ## Lisensi
 
-Proyek ini open-source dan dilisensikan di bawah [MIT license](https://opensource.org/licenses/MIT).
+Proyek ini open-source dan dilisensikan di bawah [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html).
