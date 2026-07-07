@@ -37,9 +37,9 @@ class BellScheduleSeeder extends Seeder
             ['time' => '10:25', 'name' => 'Jam ke-4'],
             ['time' => '11:05', 'name' => 'Jam ke-5'],
             ['time' => '11:45', 'name' => 'Istirahat 2'],
-            ['time' => '12:55', 'name' => 'Jam ke-6'],
-            ['time' => '13:35', 'name' => 'Jam ke-7'],
-            ['time' => '14:15', 'name' => 'Jam ke-8'],
+            ['time' => '12:15', 'name' => 'Jam ke-6'],
+            ['time' => '12:55', 'name' => 'Jam ke-7'],
+            ['time' => '13:35', 'name' => 'Jam ke-8'],
             ['time' => '15:00', 'name' => 'Pulang'],
         ];
 
@@ -53,10 +53,10 @@ class BellScheduleSeeder extends Seeder
             ['time' => '10:25', 'name' => 'Jam ke-5'],
             ['time' => '11:05', 'name' => 'Jam ke-6'],
             ['time' => '11:45', 'name' => 'Istirahat 2'],
-            ['time' => '12:55', 'name' => 'Jam ke-7'],
-            ['time' => '13:35', 'name' => 'Jam ke-8'],
-            ['time' => '14:15', 'name' => 'Jam ke-9'],
-            ['time' => '15:00', 'name' => 'Jam ke-10'],
+            ['time' => '12:15', 'name' => 'Jam ke-7'],
+            ['time' => '12:55', 'name' => 'Jam ke-8'],
+            ['time' => '13:35', 'name' => 'Jam ke-9'],
+            ['time' => '14:15', 'name' => 'Jam ke-10'],
             ['time' => '15:40', 'name' => 'Pulang'],
         ];
 
