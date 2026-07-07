@@ -15,33 +15,41 @@
             body { font-family: 'Inter', sans-serif; }
         </style>
     </head>
-    <body class="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 min-h-screen text-white flex flex-col">
+    <body class="bg-gradient-to-br from-slate-100 via-blue-100 to-slate-200 dark:from-slate-900 dark:via-blue-950 dark:to-slate-900 min-h-screen text-slate-900 dark:text-white flex flex-col">
         <header class="w-full max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                     </svg>
                 </div>
-                <h1 class="text-lg font-semibold text-white/90">Bell Sekolah Otomatis</h1>
+                <h1 class="text-lg font-semibold text-slate-800 dark:text-white/90">Bell Sekolah Otomatis</h1>
             </div>
-            @if (Route::has('login'))
-                <nav class="flex items-center gap-3">
+            <nav class="flex items-center gap-3">
+                <button id="dark-toggle" class="w-9 h-9 rounded-lg bg-white/80 dark:bg-white/10 hover:bg-white dark:hover:bg-white/20 flex items-center justify-center transition" aria-label="Toggle dark mode">
+                    <svg id="sun-icon" class="w-4 h-4 text-yellow-500 hidden" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                    <svg id="moon-icon" class="w-4 h-4 text-slate-600 dark:text-slate-300" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                    </svg>
+                </button>
+                @if (Route::has('login'))
                     @auth
-                        <a href="{{ url('/dashboard') }}" class="px-4 py-2 text-sm rounded-lg bg-white/10 hover:bg-white/20 transition">Dashboard</a>
+                        <a href="{{ url('/dashboard') }}" class="px-4 py-2 text-sm rounded-lg bg-white/80 dark:bg-white/10 hover:bg-white dark:hover:bg-white/20 text-slate-700 dark:text-white transition">Dashboard</a>
                     @else
-                        <a href="{{ route('login') }}" class="px-4 py-2 text-sm rounded-lg bg-blue-500 hover:bg-blue-600 transition">Login Admin</a>
+                        <a href="{{ route('login') }}" class="px-4 py-2 text-sm rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition">Login Admin</a>
                     @endauth
-                </nav>
-            @endif
+                @endif
+            </nav>
         </header>
 
         <main class="flex-1 w-full max-w-6xl mx-auto px-2 sm:px-4 py-4 sm:py-6 flex flex-col lg:flex-row gap-4 sm:gap-6 items-start overflow-x-hidden">
             {{-- Digital Clock --}}
             <div class="w-full lg:w-[380px] xl:w-[400px] shrink-0">
-                <div class="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-4 sm:p-6 lg:p-8 text-center">
-                    <p class="text-sm text-blue-300/80 font-medium uppercase tracking-widest mb-2">{{ $todayDate }}</p>
-                    <p class="text-sm text-white/50 mb-6">{{ $dayName }}</p>
+                <div class="bg-white/80 dark:bg-white/5 backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-white/10 p-4 sm:p-6 lg:p-8 text-center">
+                    <p class="text-sm text-blue-500 dark:text-blue-300/80 font-medium uppercase tracking-widest mb-2">{{ $todayDate }}</p>
+                    <p class="text-sm text-slate-500 dark:text-white/50 mb-6">{{ $dayName }}</p>
                     <div class="clock-display">
                         <div class="text-4xl sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-light tracking-[0.1em] tabular-nums text-white overflow-hidden" id="clock">00:00:00</div>
                         <div class="text-base sm:text-lg text-white/40 mt-2" id="clock-date"></div>
@@ -76,10 +84,10 @@
 
             {{-- Bell Schedule --}}
             <div class="flex-1 w-full">
-                <div class="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden">
-                    <div class="px-6 py-4 border-b border-white/5 flex items-center justify-between">
-                        <h2 class="text-lg font-semibold">Jadwal Bell Hari Ini</h2>
-                        <span class="text-xs text-white/40">{{ $schedules->count() }} event</span>
+                <div class="bg-white/80 dark:bg-white/5 backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-white/10 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-200 dark:border-white/5 flex items-center justify-between">
+                        <h2 class="text-lg font-semibold text-slate-800 dark:text-white">Jadwal Bell Hari Ini</h2>
+                        <span class="text-xs text-slate-400 dark:text-white/40">{{ $schedules->count() }} event</span>
                     </div>
 
                     @if ($schedules->isNotEmpty())
@@ -87,7 +95,7 @@
                             $now = now()->format('H:i');
                             $nextFound = false;
                         @endphp
-                        <div class="divide-y divide-white/5">
+                        <div class="divide-y divide-slate-200 dark:divide-white/5">
                             @foreach ($schedules as $schedule)
                                 @php
                                     $time = $schedule->time?->format('H:i');
@@ -96,32 +104,32 @@
                                     $isNext = !$isPast && !$isNow && !$nextFound;
                                     if ($isNext) $nextFound = true;
                                 @endphp
-                                <div id="schedule-{{ $schedule->id }}" class="px-6 py-4 flex items-center gap-4 transition {{ $isNow ? 'bg-blue-500/10 border-l-2 border-blue-400' : ($isPast ? 'opacity-40' : 'hover:bg-white/5') }} {{ $isNext ? 'ring-1 ring-emerald-400/30 bg-emerald-500/5' : '' }}">
+                                <div id="schedule-{{ $schedule->id }}" class="px-6 py-4 flex items-center gap-4 transition {{ $isNow ? 'bg-blue-100 dark:bg-blue-500/10 border-l-2 border-blue-400' : ($isPast ? 'opacity-40' : 'hover:bg-slate-100 dark:hover:bg-white/5') }} {{ $isNext ? 'ring-1 ring-emerald-400/30 bg-emerald-50 dark:bg-emerald-500/5' : '' }}">
                                     <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-medium {{ $isNow ? 'text-blue-300' : ($isPast ? 'text-white/50' : 'text-white/80') }}">
+                                        <p class="text-sm font-medium {{ $isNow ? 'text-blue-600 dark:text-blue-300' : ($isPast ? 'text-slate-400 dark:text-white/50' : 'text-slate-700 dark:text-white/80') }}">
                                             {{ $schedule->name }}
                                             <span class="ml-2 inline-flex items-center gap-1 text-xs"
                                                   data-label="{{ $schedule->id }}">
                                                 @if ($isNow)
-                                                    <span class="text-blue-400">
-                                                        <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse inline-block"></span> Berlangsung
+                                                    <span class="text-blue-500 dark:text-blue-400">
+                                                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400 animate-pulse inline-block"></span> Berlangsung
                                                     </span>
                                                 @elseif ($isPast)
-                                                    <span class="text-white/30">Sudah bunyi</span>
+                                                    <span class="text-slate-300 dark:text-white/30">Sudah bunyi</span>
                                                 @elseif ($isNext)
-                                                    <span class="text-emerald-400">
-                                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span> Selanjutnya
+                                                    <span class="text-emerald-500 dark:text-emerald-400">
+                                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 inline-block"></span> Selanjutnya
                                                     </span>
                                                 @endif
                                             </span>
                                         </p>
-                                        <p class="text-xs {{ $isNow ? 'text-blue-400/70' : 'text-white/40' }} mt-0.5">
+                                        <p class="text-xs {{ $isNow ? 'text-blue-500/70 dark:text-blue-400/70' : 'text-slate-400 dark:text-white/40' }} mt-0.5">
                                             {{ $schedule->time?->format('H:i') }}
                                         </p>
                                     </div>
                                     @if ($schedule->audio_file)
                                         <div class="shrink-0">
-                                            <button onclick="playBell('{{ $schedule->audio_file }}')" class="w-8 h-8 rounded-lg flex items-center justify-center {{ $isNow ? 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30' : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/60' }} transition">
+                                            <button onclick="playBell('{{ $schedule->audio_file }}')" class="w-8 h-8 rounded-lg flex items-center justify-center {{ $isNow ? 'bg-blue-500/20 text-blue-500 dark:text-blue-400 hover:bg-blue-500/30' : 'bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-white/40 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-500 dark:hover:text-white/60' }} transition">
                                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                                     <path d="M8 5v14l11-7z"/>
                                                 </svg>
@@ -138,15 +146,15 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                 </svg>
                             </div>
-                            <p class="text-white/60">Tidak ada jadwal bell untuk hari ini.</p>
-                            <p class="text-white/30 text-sm mt-1">Selamat beristirahat!</p>
+                            <p class="text-slate-500 dark:text-white/60">Tidak ada jadwal bell untuk hari ini.</p>
+                            <p class="text-slate-400 dark:text-white/30 text-sm mt-1">Selamat beristirahat!</p>
                         </div>
                     @endif
                 </div>
             </div>
         </main>
 
-        <footer class="w-full max-w-6xl mx-auto px-4 py-4 text-center text-xs text-white/20">
+        <footer class="w-full max-w-6xl mx-auto px-4 py-4 text-center text-xs text-slate-400 dark:text-white/20">
             &copy; {{ date('Y') }} Sistem Bell Sekolah Otomatis
         </footer>
 
@@ -162,6 +170,28 @@
         @endphp
 
         <script>
+            // Dark mode
+            (function() {
+                const stored = localStorage.getItem('darkMode');
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const isDark = stored !== null ? stored === 'true' : prefersDark;
+                document.documentElement.classList.toggle('dark', isDark);
+
+                document.getElementById('dark-toggle')?.addEventListener('click', function() {
+                    const nowDark = document.documentElement.classList.toggle('dark');
+                    localStorage.setItem('darkMode', nowDark);
+                    document.getElementById('sun-icon')?.classList.toggle('hidden', !nowDark);
+                    document.getElementById('moon-icon')?.classList.toggle('hidden', nowDark);
+                });
+
+                const sun = document.getElementById('sun-icon');
+                const moon = document.getElementById('moon-icon');
+                if (sun && moon) {
+                    sun.classList.toggle('hidden', !isDark);
+                    moon.classList.toggle('hidden', isDark);
+                }
+            })();
+
             const schedules = @json($bellData);
             const firstBell = @json($firstBell);
             const lastBell = @json($lastBell);
