@@ -155,7 +155,7 @@
         </main>
 
         <footer class="w-full max-w-6xl mx-auto px-4 py-4 text-center text-xs text-slate-400 dark:text-white/20">
-            &copy; {{ date('Y') }} Sistem Bell Sekolah Otomatis
+            &copy; {{ date('Y') }} Sistem Bell Sekolah Otomatis &mdash; Dibuat oleh <strong>Ardan, S.Kom</strong> dari <strong>SMKN Campalagian</strong>
         </footer>
 
         @php
