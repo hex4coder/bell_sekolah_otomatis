@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl leading-tight">Manajemen Jadwal Bell</h2>
+            <h2 class="font-semibold text-xl leading-tight text-gray-900 dark:text-white">Manajemen Jadwal Bell</h2>
             <div class="flex items-center gap-2">
                 <button onclick="openCopy()" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg transition">
                     Copy Jadwal

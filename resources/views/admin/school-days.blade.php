@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl leading-tight">Manajemen Hari Sekolah</h2>
+            <h2 class="font-semibold text-xl leading-tight text-gray-900 dark:text-white">Manajemen Hari Sekolah</h2>
         </div>
     </x-slot>
 

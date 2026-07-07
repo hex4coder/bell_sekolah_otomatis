@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl leading-tight">Manajemen File Audio</h2>
+            <h2 class="font-semibold text-xl leading-tight text-gray-900 dark:text-white">Manajemen File Audio</h2>
             <button onclick="document.getElementById('uploadModal').classList.remove('hidden')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition">
                 + Upload Audio
             </button>
@@ -48,7 +48,7 @@
                         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                             @foreach ($files as $file)
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30">
-                                    <td class="px-6 py-4 whitespace-nowrap font-medium">{{ $file->name }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900 dark:text-white">{{ $file->name }}</td>
                                     <td class="px-6 py-4 text-gray-600 dark:text-gray-400 font-mono text-xs">{{ $file->path }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600 dark:text-gray-400">{{ $file->size_formatted }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
@@ -81,7 +81,7 @@
     <div id="uploadModal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold">Upload Audio Baru</h3>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Upload Audio Baru</h3>
                 <button onclick="document.getElementById('uploadModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
@@ -108,7 +108,7 @@
     <div id="editModal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold">Edit Nama Aset</h3>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Edit Nama Aset</h3>
                 <button onclick="document.getElementById('editModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>

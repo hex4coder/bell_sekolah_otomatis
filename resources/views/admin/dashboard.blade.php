@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl leading-tight">Dashboard Admin</h2>
+            <h2 class="font-semibold text-xl leading-tight text-gray-900 dark:text-white">Dashboard Admin</h2>
     </x-slot>
 
     <div class="py-6">
@@ -35,7 +35,7 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-2xl font-bold">{{ $totalSchedules }}</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $totalSchedules }}</p>
                             <p class="text-sm text-gray-500 dark:text-gray-400">Total Jadwal Bell</p>
                         </div>
                     </div>
@@ -49,7 +49,7 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-2xl font-bold">{{ $audioFileCount }}</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $audioFileCount }}</p>
                             <p class="text-sm text-gray-500 dark:text-gray-400">File Audio Tersimpan</p>
                         </div>
                     </div>
@@ -63,7 +63,7 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-2xl font-bold">{{ $totalAudioAssets }}</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $totalAudioAssets }}</p>
                             <p class="text-sm text-gray-500 dark:text-gray-400">Audio Terdaftar di DB</p>
                         </div>
                     </div>
@@ -77,7 +77,7 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-2xl font-bold">{{ $totalUsers }}</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $totalUsers }}</p>
                             <p class="text-sm text-gray-500 dark:text-gray-400">Total Pengguna</p>
                         </div>
                     </div>
@@ -160,10 +160,10 @@
 
             {{-- Storage Info --}}
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                <h3 class="font-semibold text-lg mb-4">Informasi Penyimpanan Audio</h3>
+                <h3 class="font-semibold text-lg mb-4 text-gray-900 dark:text-white">Informasi Penyimpanan Audio</h3>
                 <div class="flex items-center gap-3 text-sm">
                     <span class="text-gray-500 dark:text-gray-400">Total ukuran file audio:</span>
-                    <span class="font-medium">{{ $audioSizeFormatted }}</span>
+                    <span class="font-medium text-gray-900 dark:text-white">{{ $audioSizeFormatted }}</span>
                 </div>
             </div>
         </div>
