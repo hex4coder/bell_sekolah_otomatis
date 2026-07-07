@@ -46,10 +46,15 @@
                         <div class="text-7xl font-light tracking-[0.1em] tabular-nums text-white" id="clock">00:00:00</div>
                         <div class="text-lg text-white/40 mt-2" id="clock-date"></div>
                     </div>
-                    <div class="mt-6 pt-6 border-t border-white/5">
+                    @php $hasBell = $schedules->contains(fn($s) => $s->audio_file && $s->is_active); @endphp
+                    <div class="mt-6 pt-6 border-t border-white/5 space-y-2">
                         <div class="flex items-center justify-center gap-2 text-sm {{ $isSchoolDay ? 'text-green-400' : 'text-yellow-400' }}">
                             <span class="w-2 h-2 rounded-full {{ $isSchoolDay ? 'bg-green-400 animate-pulse' : 'bg-yellow-400' }}"></span>
                             <span>{{ $isSchoolDay ? 'Hari Sekolah Aktif' : 'Hari Libur / Tidak Ada Jadwal' }}</span>
+                        </div>
+                        <div class="flex items-center justify-center gap-2 text-sm {{ $hasBell ? 'text-emerald-400' : 'text-red-400' }}">
+                            <span class="w-2 h-2 rounded-full {{ $hasBell ? 'bg-emerald-400 animate-pulse' : 'bg-red-400' }}"></span>
+                            <span>{{ $hasBell ? 'Bell Aktif' : 'Bell Tidak Aktif' }}</span>
                         </div>
                     </div>
                 </div>
@@ -162,7 +167,7 @@
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 audioCtx.resume().then(() => {
                     audioReady = true;
-                    document.getElementById('activator-msg').textContent = '🔊 Bell aktif';
+                    document.getElementById('activator-msg').textContent = 'Bell aktif';
                     setTimeout(() => {
                         const el = document.getElementById('audio-activator');
                         if (el) el.style.display = 'none';
