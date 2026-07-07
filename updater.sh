@@ -14,5 +14,7 @@ su -s /bin/bash -c "php artisan key:generate" www-data
 su -s /bin/bash -c "php artisan storage:link" www-data
 su -s /bin/bash -c "php artisan migrate --seed" www-data
 su -s /bin/bash -c "php artisan config:cache && php artisan route:cache && php artisan view:cache" www-data
-su -s /bin/bash -c "npm install" www-data
-su -s /bin/bash -c "npm run build" www-data
+
+# 3. Install frontend deps and generate CSS
+npm install
+npm run build
