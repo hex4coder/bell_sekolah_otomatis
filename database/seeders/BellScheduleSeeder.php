@@ -10,19 +10,18 @@ class BellScheduleSeeder extends Seeder
     public function run(): void
     {
         $audioMap = [
-            'Upacara Bendera' => 'bel_upacara.wav',
-            'Jam ke-1' => 'bel_jam_1.wav',
-            'Jam ke-2' => 'bel_jam_2.wav',
-            'Jam ke-3' => 'bel_jam_3.wav',
-            'Jam ke-4' => 'bel_jam_4.wav',
-            'Jam ke-5' => 'bel_jam_5.wav',
-            'Jam ke-6' => 'bel_jam_6.wav',
-            'Jam ke-7' => 'bel_jam_7.wav',
-            'Jam ke-8' => 'bel_jam_8.wav',
-            'Jam ke-9' => 'bel_jam_9.wav',
-            'Jam ke-10' => 'bel_jam_10.wav',
-            'Istirahat' => 'bel_istirahat.wav',
-            'Pulang' => 'bel_pulang.wav',
+            'Jam ke-1' => 'jam_ke_1.wav',
+            'Jam ke-2' => 'jam_ke_2.wav',
+            'Jam ke-3' => 'jam_ke_3.wav',
+            'Jam ke-4' => 'jam_ke_4.wav',
+            'Jam ke-5' => 'jam_ke_5.wav',
+            'Jam ke-6' => 'jam_ke_6.wav',
+            'Jam ke-7' => 'jam_ke_7.wav',
+            'Jam ke-8' => 'jam_ke_8.wav',
+            'Jam ke-9' => 'jam_ke_9.wav',
+            'Jam ke-10' => 'jam_ke_10.wav',
+            'Istirahat' => 'istirahat.wav',
+            'Pulang' => 'akhir_pelajaran_1.wav',
         ];
 
         $monday = [
