@@ -91,8 +91,8 @@
                             @foreach ($schedules as $schedule)
                                 @php
                                     $time = $schedule->time?->format('H:i');
-                                    $isNow = $time && $time <= $now && $now < date('H:i', strtotime('+2 minutes', strtotime($time)));
-                                    $isPast = $time < $now && !$isNow;
+                                    $isNow = $time && $time === $now;
+                                    $isPast = $time < $now;
                                     $isNext = !$isPast && !$isNow && !$nextFound;
                                     if ($isNext) $nextFound = true;
                                 @endphp
@@ -225,23 +225,14 @@
                     const label = row?.querySelector('[data-label="' + s.id + '"]');
                     if (!row || !label) continue;
 
-                    const [sh, sm] = s.time.split(':').map(Number);
-                    const sMin = sh * 60 + sm;
-                    const curMin = now.getHours() * 60 + now.getMinutes();
-                    const isPast = curMin > sMin;
-                    const isNow = curMin >= sMin && curMin < sMin + 2;
+                    const isPast = s.time < current;
+                    const isNow = s.time === current;
                     const isNext = !isPast && !isNow && !nextFound;
                     if (isNext) nextFound = true;
 
-                    row.classList.remove('bg-blue-500/10', 'border-l-2', 'border-blue-400', 'opacity-40', 'ring-1', 'ring-emerald-400/30', 'bg-emerald-500/5');
-                    row.classList.add('transition');
-                    if (isNow) {
-                        row.classList.add('bg-blue-500/10', 'border-l-2', 'border-blue-400');
-                    } else if (isPast) {
-                        row.classList.add('opacity-40');
-                    } else if (isNext) {
-                        row.classList.add('ring-1', 'ring-emerald-400/30', 'bg-emerald-500/5');
-                    }
+                    row.className = row.className
+                        .replace(/(?:^|\s)(bg-blue-500\/10|border-l-2|border-blue-400|opacity-40|ring-1|ring-emerald-400\/30|bg-emerald-500\/5|hover:bg-white\/5)/g, '')
+                        + (isNow ? ' bg-blue-500/10 border-l-2 border-blue-400' : isPast ? ' opacity-40' : isNext ? ' ring-1 ring-emerald-400/30 bg-emerald-500/5' : ' hover:bg-white/5');
 
                     if (isNow) {
                         label.innerHTML = '<span class="text-blue-400"><span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse inline-block"></span> Berlangsung</span>';
