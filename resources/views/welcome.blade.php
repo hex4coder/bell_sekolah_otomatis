@@ -43,7 +43,7 @@
                     <p class="text-sm text-blue-300/80 font-medium uppercase tracking-widest mb-2">{{ $todayDate }}</p>
                     <p class="text-sm text-white/50 mb-6">{{ $dayName }}</p>
                     <div class="clock-display">
-                        <div class="text-5xl sm:text-6xl lg:text-7xl font-light tracking-[0.1em] tabular-nums text-white break-all" id="clock">00:00:00</div>
+                        <div class="text-4xl sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-light tracking-[0.1em] tabular-nums text-white overflow-hidden" id="clock">00:00:00</div>
                         <div class="text-base sm:text-lg text-white/40 mt-2" id="clock-date"></div>
                     </div>
                     @php $hasBell = $schedules->contains(fn($s) => $s->audio_file && $s->is_active); @endphp
