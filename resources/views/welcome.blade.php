@@ -56,6 +56,20 @@
                             <span class="w-2 h-2 rounded-full {{ $hasBell ? 'bg-emerald-400 animate-pulse' : 'bg-red-400' }}"></span>
                             <span>{{ $hasBell ? 'Engine Bell Aktif' : 'Engine Bell Tidak Aktif' }}</span>
                         </div>
+                        <div class="flex items-center justify-center gap-2 text-sm {{ $schoolStatus === 'Berlangsung' ? 'text-blue-400' : ($schoolStatus === 'Selesai' ? 'text-orange-400' : 'text-white/40') }}">
+                            <span class="w-2 h-2 rounded-full {{ $schoolStatus === 'Berlangsung' ? 'bg-blue-400 animate-pulse' : ($schoolStatus === 'Selesai' ? 'bg-orange-400' : 'bg-white/20') }}"></span>
+                            <span id="school-status-text">
+                                @if ($schoolStatus === 'Libur')
+                                    {{ $isSchoolDay ? 'Tidak ada jadwal' : 'Hari libur' }}
+                                @elseif ($schoolStatus === 'Belum masuk')
+                                    Jam sekolah dimulai {{ $firstBell }}
+                                @elseif ($schoolStatus === 'Selesai')
+                                    Jam sekolah selesai {{ $lastBell ? 'pukul ' . $lastBell : '' }}
+                                @else
+                                    Jam sekolah berlangsung
+                                @endif
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -135,6 +149,9 @@
 
         <script>
             const schedules = @json($bellData);
+            const firstBell = @json($firstBell);
+            const lastBell = @json($lastBell);
+            const isSchoolDay = @json($isSchoolDay);
 
             let playedIds = new Set();
 
@@ -167,8 +184,29 @@
                 }
             }
 
-            setInterval(checkSchedules, 10000);
+            function updateSchoolStatus() {
+                const now = new Date();
+                const current = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+                const el = document.getElementById('school-status-text');
+                if (!el) return;
+
+                if (!isSchoolDay || schedules.length === 0) {
+                    el.textContent = !isSchoolDay ? 'Hari libur' : 'Tidak ada jadwal';
+                } else if (firstBell && current < firstBell) {
+                    el.textContent = 'Jam sekolah dimulai ' + firstBell;
+                } else if (lastBell && current > lastBell) {
+                    el.textContent = 'Jam sekolah selesai pukul ' + lastBell;
+                } else {
+                    el.textContent = 'Jam sekolah berlangsung';
+                }
+            }
+
+            setInterval(function() {
+                checkSchedules();
+                updateSchoolStatus();
+            }, 10000);
             checkSchedules();
+            updateSchoolStatus();
 
             // Poll emergency bell every 5 seconds
             setInterval(async function() {

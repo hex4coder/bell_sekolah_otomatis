@@ -21,6 +21,20 @@ Route::get('/', function () {
             ->get()
         : collect();
 
+    $nowTime = now()->format('H:i');
+    $firstBell = $schedules->first()?->time?->format('H:i');
+    $lastBell = $schedules->last()?->time?->format('H:i');
+
+    if (!$isSchoolDay || $schedules->isEmpty()) {
+        $schoolStatus = 'Libur';
+    } elseif ($firstBell && $nowTime < $firstBell) {
+        $schoolStatus = 'Belum masuk';
+    } elseif ($lastBell && $nowTime > $lastBell) {
+        $schoolStatus = 'Selesai';
+    } else {
+        $schoolStatus = 'Berlangsung';
+    }
+
     $dayNames = [
         0 => 'Minggu',
         1 => 'Senin',
@@ -36,6 +50,9 @@ Route::get('/', function () {
         'dayName' => $dayNames[$dayOfWeek],
         'todayDate' => $today->format('d F Y'),
         'isSchoolDay' => $isSchoolDay,
+        'schoolStatus' => $schoolStatus,
+        'firstBell' => $firstBell,
+        'lastBell' => $lastBell,
     ]);
 });
 
