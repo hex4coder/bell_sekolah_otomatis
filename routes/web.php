@@ -77,6 +77,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/schedules', [AdminController::class, 'schedules'])->name('schedules');
     Route::post('/schedules', [AdminController::class, 'schedulesStore'])->name('schedules.store');
     Route::post('/schedules/copy', [AdminController::class, 'schedulesCopy'])->name('schedules.copy');
+    Route::post('/schedules/generate-default', [AdminController::class, 'schedulesGenerateDefault'])->name('schedules.generate-default');
     Route::delete('/schedules/reset', [AdminController::class, 'schedulesReset'])->name('schedules.reset');
     Route::delete('/schedules/day/{day}', [AdminController::class, 'schedulesDestroyDay'])->name('schedules.destroyDay');
     Route::put('/schedules/{schedule}', [AdminController::class, 'schedulesUpdate'])->name('schedules.update');

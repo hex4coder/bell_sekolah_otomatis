@@ -6,6 +6,12 @@
                 <button onclick="openCopy()" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg transition">
                     Copy Jadwal
                 </button>
+                <form action="{{ route('admin.schedules.generate-default') }}" method="POST" class="inline">
+                    @csrf
+                    <button type="submit" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-medium rounded-lg transition">
+                        Generate Jadwal Default
+                    </button>
+                </form>
                 <form action="{{ route('admin.schedules.reset') }}" method="POST" class="inline reset-form">
                     @csrf @method('DELETE')
                     <button type="button" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition btn-reset">

@@ -7,6 +7,7 @@ use App\Models\BellSchedule;
 use App\Models\SchoolDay;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -317,6 +318,16 @@ class AdminController extends Controller
 
         return redirect()->route('admin.schedules')
             ->with('success', "Jadwal {$sourceName} berhasil disalin ke " . count($targetDays) . " hari ({$copied} jadwal).");
+    }
+
+    public function schedulesGenerateDefault()
+    {
+        BellSchedule::truncate();
+
+        Artisan::call('db:seed', ['--class' => 'Database\\Seeders\\BellScheduleSeeder', '--force' => true]);
+
+        return redirect()->route('admin.schedules')
+            ->with('success', 'Jadwal default berhasil dibuat.');
     }
 
     public function bellDarurat(Request $request)
