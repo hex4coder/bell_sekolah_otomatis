@@ -117,7 +117,30 @@
             &copy; {{ date('Y') }} Sistem Bell Sekolah Otomatis
         </footer>
 
+        @php
+            $bellData = $schedules
+                ->filter(fn($s) => $s->audio_file && $s->time)
+                ->map(fn($s) => [
+                    'id' => $s->id,
+                    'time' => $s->time->format('H:i'),
+                    'audio_file' => $s->audio_file,
+                ])
+                ->values();
+        @endphp
+
+        <div id="audio-activator" class="fixed bottom-4 right-4 z-50">
+            <div class="px-3 py-1.5 rounded-lg bg-yellow-500/20 border border-yellow-500/30 text-xs text-yellow-300 cursor-pointer hover:bg-yellow-500/30 transition" id="activator-msg">
+                Klik untuk aktifkan bell
+            </div>
+        </div>
+
         <script>
+            const schedules = @json($bellData);
+
+            let audioCtx = null;
+            let audioReady = false;
+            let playedIds = new Set();
+
             function updateClock() {
                 const now = new Date();
                 const hours = String(now.getHours()).padStart(2, '0');
@@ -130,8 +153,42 @@
 
             function playBell(filename) {
                 const audio = new Audio('/audio/' + filename);
+                audio.volume = 1;
                 audio.play().catch(() => {});
             }
+
+            function initAudio() {
+                if (audioReady) return;
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                audioCtx.resume().then(() => {
+                    audioReady = true;
+                    document.getElementById('activator-msg').textContent = '🔊 Bell aktif';
+                    setTimeout(() => {
+                        const el = document.getElementById('audio-activator');
+                        if (el) el.style.display = 'none';
+                    }, 3000);
+                });
+            }
+
+            document.addEventListener('click', initAudio, { once: true });
+            document.addEventListener('touchstart', initAudio, { once: true });
+
+            function checkSchedules() {
+                if (!audioReady) return;
+                const now = new Date();
+                const current = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+
+                for (const s of schedules) {
+                    if (playedIds.has(s.id)) continue;
+                    if (s.time === current) {
+                        playedIds.add(s.id);
+                        playBell(s.audio_file);
+                    }
+                }
+            }
+
+            setInterval(checkSchedules, 10000);
+            checkSchedules();
 
             // Poll emergency bell every 5 seconds
             setInterval(async function() {
