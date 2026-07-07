@@ -54,7 +54,7 @@
                         </div>
                         <div class="flex items-center justify-center gap-2 text-sm {{ $hasBell ? 'text-emerald-400' : 'text-red-400' }}">
                             <span class="w-2 h-2 rounded-full {{ $hasBell ? 'bg-emerald-400 animate-pulse' : 'bg-red-400' }}"></span>
-                            <span>{{ $hasBell ? 'Bell Aktif' : 'Bell Tidak Aktif' }}</span>
+                            <span>{{ $hasBell ? 'Engine Bell Aktif' : 'Engine Bell Tidak Aktif' }}</span>
                         </div>
                     </div>
                 </div>
