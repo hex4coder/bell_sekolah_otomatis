@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             SchoolDaySeeder::class,
+            AudioAssetSeeder::class,
             BellScheduleSeeder::class,
         ]);
     }
