@@ -76,12 +76,12 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::put('/school-days', [AdminController::class, 'schoolDaysUpdate'])->name('school-days.update');
     Route::get('/schedules', [AdminController::class, 'schedules'])->name('schedules');
     Route::post('/schedules', [AdminController::class, 'schedulesStore'])->name('schedules.store');
+    Route::post('/schedules/copy', [AdminController::class, 'schedulesCopy'])->name('schedules.copy');
+    Route::delete('/schedules/reset', [AdminController::class, 'schedulesReset'])->name('schedules.reset');
+    Route::delete('/schedules/day/{day}', [AdminController::class, 'schedulesDestroyDay'])->name('schedules.destroyDay');
     Route::put('/schedules/{schedule}', [AdminController::class, 'schedulesUpdate'])->name('schedules.update');
     Route::delete('/schedules/{schedule}', [AdminController::class, 'schedulesDestroy'])->name('schedules.destroy');
-    Route::post('/schedules/copy', [AdminController::class, 'schedulesCopy'])->name('schedules.copy');
     Route::post('/bell-darurat', [AdminController::class, 'bellDarurat'])->name('bell.darurat');
-    Route::delete('/schedules/day/{day}', [AdminController::class, 'schedulesDestroyDay'])->name('schedules.destroyDay');
-    Route::delete('/schedules/reset', [AdminController::class, 'schedulesReset'])->name('schedules.reset');
 });
 
 Route::get('/audio/{filename}', function (string $filename) {
