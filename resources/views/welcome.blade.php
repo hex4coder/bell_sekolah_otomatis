@@ -51,11 +51,11 @@
                     <p class="text-sm text-blue-500 dark:text-blue-300/80 font-medium uppercase tracking-widest mb-2">{{ $todayDate }}</p>
                     <p class="text-sm text-slate-500 dark:text-white/50 mb-6">{{ $dayName }}</p>
                     <div class="clock-display">
-                        <div class="text-4xl sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-light tracking-[0.1em] tabular-nums text-white overflow-hidden" id="clock">00:00:00</div>
-                        <div class="text-base sm:text-lg text-white/40 mt-2" id="clock-date"></div>
+                        <div class="text-4xl sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-light tracking-[0.1em] tabular-nums text-slate-900 dark:text-white overflow-hidden" id="clock">00:00:00</div>
+                        <div class="text-base sm:text-lg text-slate-400 dark:text-white/40 mt-2" id="clock-date"></div>
                     </div>
                     @php $hasBell = $schedules->contains(fn($s) => $s->audio_file && $s->is_active); @endphp
-                    <div class="mt-6 pt-6 border-t border-white/5 space-y-2">
+                    <div class="mt-6 pt-6 border-t border-slate-200 dark:border-white/5 space-y-2">
                         <div class="flex items-center justify-center gap-2 text-sm {{ $isSchoolDay ? 'text-green-400' : 'text-yellow-400' }}">
                             <span class="w-2 h-2 rounded-full {{ $isSchoolDay ? 'bg-green-400 animate-pulse' : 'bg-yellow-400' }}"></span>
                             <span>{{ $isSchoolDay ? 'Hari Sekolah Aktif' : 'Hari Libur / Tidak Ada Jadwal' }}</span>
@@ -64,8 +64,8 @@
                             <span class="w-2 h-2 rounded-full {{ $hasBell ? 'bg-emerald-400 animate-pulse' : 'bg-red-400' }}"></span>
                             <span>{{ $hasBell ? 'Engine Bell Aktif' : 'Engine Bell Tidak Aktif' }}</span>
                         </div>
-                        <div class="flex items-center justify-center gap-2 text-sm {{ $schoolStatus === 'Berlangsung' ? 'text-blue-400' : ($schoolStatus === 'Selesai' ? 'text-orange-400' : 'text-white/40') }}">
-                            <span class="w-2 h-2 rounded-full {{ $schoolStatus === 'Berlangsung' ? 'bg-blue-400 animate-pulse' : ($schoolStatus === 'Selesai' ? 'bg-orange-400' : 'bg-white/20') }}"></span>
+                        <div class="flex items-center justify-center gap-2 text-sm {{ $schoolStatus === 'Berlangsung' ? 'text-blue-400' : ($schoolStatus === 'Selesai' ? 'text-orange-400' : 'text-slate-400 dark:text-white/40') }}">
+                            <span class="w-2 h-2 rounded-full {{ $schoolStatus === 'Berlangsung' ? 'bg-blue-400 animate-pulse' : ($schoolStatus === 'Selesai' ? 'bg-orange-400' : 'bg-slate-300 dark:bg-white/20') }}"></span>
                             <span id="school-status-text">
                                 @if ($schoolStatus === 'Libur')
                                     {{ $isSchoolDay ? 'Tidak ada jadwal' : 'Hari libur' }}
