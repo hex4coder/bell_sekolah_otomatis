@@ -83,23 +83,37 @@
                     </div>
 
                     @if ($schedules->isNotEmpty())
+                        @php
+                            $now = now()->format('H:i');
+                            $nextFound = false;
+                        @endphp
                         <div class="divide-y divide-white/5">
-                            @php $now = now()->format('H:i'); @endphp
                             @foreach ($schedules as $schedule)
                                 @php
                                     $time = $schedule->time?->format('H:i');
                                     $isNow = $time && $time <= $now && $now < date('H:i', strtotime('+2 minutes', strtotime($time)));
                                     $isPast = $time < $now && !$isNow;
+                                    $isNext = !$isPast && !$isNow && !$nextFound;
+                                    if ($isNext) $nextFound = true;
                                 @endphp
-                                <div class="px-6 py-4 flex items-center gap-4 transition {{ $isNow ? 'bg-blue-500/10 border-l-2 border-blue-400' : ($isPast ? 'opacity-40' : 'hover:bg-white/5') }}">
+                                <div id="schedule-{{ $schedule->id }}" class="px-6 py-4 flex items-center gap-4 transition {{ $isNow ? 'bg-blue-500/10 border-l-2 border-blue-400' : ($isPast ? 'opacity-40' : 'hover:bg-white/5') }} {{ $isNext ? 'ring-1 ring-emerald-400/30 bg-emerald-500/5' : '' }}">
                                     <div class="flex-1 min-w-0">
                                         <p class="text-sm font-medium {{ $isNow ? 'text-blue-300' : ($isPast ? 'text-white/50' : 'text-white/80') }}">
                                             {{ $schedule->name }}
-                                            @if ($isNow)
-                                                <span class="ml-2 inline-flex items-center gap-1 text-xs text-blue-400">
-                                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span> Berlangsung
-                                                </span>
-                                            @endif
+                                            <span class="ml-2 inline-flex items-center gap-1 text-xs"
+                                                  data-label="{{ $schedule->id }}">
+                                                @if ($isNow)
+                                                    <span class="text-blue-400">
+                                                        <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse inline-block"></span> Berlangsung
+                                                    </span>
+                                                @elseif ($isPast)
+                                                    <span class="text-white/30">Sudah bunyi</span>
+                                                @elseif ($isNext)
+                                                    <span class="text-emerald-400">
+                                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span> Selanjutnya
+                                                    </span>
+                                                @endif
+                                            </span>
                                         </p>
                                         <p class="text-xs {{ $isNow ? 'text-blue-400/70' : 'text-white/40' }} mt-0.5">
                                             {{ $schedule->time?->format('H:i') }}
@@ -201,12 +215,54 @@
                 }
             }
 
+            function updateScheduleLabels() {
+                const now = new Date();
+                const current = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+                let nextFound = false;
+
+                for (const s of schedules) {
+                    const row = document.getElementById('schedule-' + s.id);
+                    const label = row?.querySelector('[data-label="' + s.id + '"]');
+                    if (!row || !label) continue;
+
+                    const [sh, sm] = s.time.split(':').map(Number);
+                    const sMin = sh * 60 + sm;
+                    const curMin = now.getHours() * 60 + now.getMinutes();
+                    const isPast = curMin > sMin;
+                    const isNow = curMin >= sMin && curMin < sMin + 2;
+                    const isNext = !isPast && !isNow && !nextFound;
+                    if (isNext) nextFound = true;
+
+                    row.classList.remove('bg-blue-500/10', 'border-l-2', 'border-blue-400', 'opacity-40', 'ring-1', 'ring-emerald-400/30', 'bg-emerald-500/5');
+                    row.classList.add('transition');
+                    if (isNow) {
+                        row.classList.add('bg-blue-500/10', 'border-l-2', 'border-blue-400');
+                    } else if (isPast) {
+                        row.classList.add('opacity-40');
+                    } else if (isNext) {
+                        row.classList.add('ring-1', 'ring-emerald-400/30', 'bg-emerald-500/5');
+                    }
+
+                    if (isNow) {
+                        label.innerHTML = '<span class="text-blue-400"><span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse inline-block"></span> Berlangsung</span>';
+                    } else if (isPast) {
+                        label.innerHTML = '<span class="text-white/30">Sudah bunyi</span>';
+                    } else if (isNext) {
+                        label.innerHTML = '<span class="text-emerald-400"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span> Selanjutnya</span>';
+                    } else {
+                        label.innerHTML = '';
+                    }
+                }
+            }
+
             setInterval(function() {
                 checkSchedules();
                 updateSchoolStatus();
+                updateScheduleLabels();
             }, 10000);
             checkSchedules();
             updateSchoolStatus();
+            updateScheduleLabels();
 
             // Poll emergency bell every 5 seconds
             setInterval(async function() {
