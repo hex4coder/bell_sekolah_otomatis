@@ -36,15 +36,15 @@
             @endif
         </header>
 
-        <main class="flex-1 w-full max-w-6xl mx-auto px-4 py-6 flex flex-col lg:flex-row gap-6 items-start">
+        <main class="flex-1 w-full max-w-6xl mx-auto px-2 sm:px-4 py-4 sm:py-6 flex flex-col lg:flex-row gap-4 sm:gap-6 items-start overflow-x-hidden">
             {{-- Digital Clock --}}
-            <div class="w-full lg:w-[380px] shrink-0">
-                <div class="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-8 text-center">
+            <div class="w-full lg:w-[380px] xl:w-[400px] shrink-0">
+                <div class="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-4 sm:p-6 lg:p-8 text-center">
                     <p class="text-sm text-blue-300/80 font-medium uppercase tracking-widest mb-2">{{ $todayDate }}</p>
                     <p class="text-sm text-white/50 mb-6">{{ $dayName }}</p>
                     <div class="clock-display">
-                        <div class="text-7xl font-light tracking-[0.1em] tabular-nums text-white" id="clock">00:00:00</div>
-                        <div class="text-lg text-white/40 mt-2" id="clock-date"></div>
+                        <div class="text-5xl sm:text-6xl lg:text-7xl font-light tracking-[0.1em] tabular-nums text-white break-all" id="clock">00:00:00</div>
+                        <div class="text-base sm:text-lg text-white/40 mt-2" id="clock-date"></div>
                     </div>
                     @php $hasBell = $schedules->contains(fn($s) => $s->audio_file && $s->is_active); @endphp
                     <div class="mt-6 pt-6 border-t border-white/5 space-y-2">
