@@ -345,7 +345,10 @@ class AdminController extends Controller
             $today = now()->dayOfWeek;
             $schedule = BellSchedule::where('day_of_week', $today)
                 ->where('is_active', true)
-                ->where('name', 'like', '%akhir%')
+                ->where(function ($q) {
+                    $q->where('name', 'like', '%akhir%')
+                      ->orWhere('name', 'Pulang');
+                })
                 ->orderBy('time', 'desc')
                 ->first();
 
