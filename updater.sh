@@ -2,7 +2,6 @@ cd /var/www/bell_sekolah_otomatis
 chmod +x /var/www/bell_sekolah_otomatis/updater.sh
             
 git stash
-git clean -df
 git pull
 
 # 1. Reset file database SQLite agar kosong kembali
