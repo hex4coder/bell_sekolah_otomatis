@@ -9,7 +9,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('bell_playlists', function (Blueprint $table) {
-            $table->dropColumn(['action_after', 'action_after_delay', 'custom_command']);
+            $columns = array_filter([
+                Schema::hasColumn('bell_playlists', 'action_after') ? 'action_after' : null,
+                Schema::hasColumn('bell_playlists', 'action_after_delay') ? 'action_after_delay' : null,
+                Schema::hasColumn('bell_playlists', 'custom_command') ? 'custom_command' : null,
+            ]);
+            if (!empty($columns)) {
+                $table->dropColumn($columns);
+            }
         });
     }
 
