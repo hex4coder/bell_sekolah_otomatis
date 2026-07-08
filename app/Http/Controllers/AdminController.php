@@ -395,7 +395,7 @@ class AdminController extends Controller
             ->first();
 
         if ($closingPlaylist) {
-            $triggerAt = now()->addMinute();
+            $triggerAt = now()->addSeconds(20);
             Cache::put('emergency_closing_at', $triggerAt->timestamp, $triggerAt->copy()->addMinutes(10));
             Cache::put('emergency_closing_id', $closingPlaylist->id, $triggerAt->copy()->addMinutes(10));
         }
