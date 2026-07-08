@@ -269,8 +269,15 @@
             const lastBell = @json($lastBell);
             const isSchoolDay = @json($isSchoolDay);
 
+            // Gunakan waktu server, bukan client local
+            const serverStart = @json($serverTimestamp);
+            const clientStart = Date.now();
+            function serverNow() {
+                return new Date(serverStart + (Date.now() - clientStart));
+            }
+
             function updateClock() {
-                const now = new Date();
+                const now = serverNow();
                 const hours = String(now.getHours()).padStart(2, '0');
                 const minutes = String(now.getMinutes()).padStart(2, '0');
                 const seconds = String(now.getSeconds()).padStart(2, '0');
@@ -286,7 +293,7 @@
             }
 
             function updateSchoolStatus() {
-                const now = new Date();
+                const now = serverNow();
                 const current = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
                 const el = document.getElementById('school-status-text');
                 if (!el) return;
@@ -303,7 +310,7 @@
             }
 
             function updateScheduleLabels() {
-                const now = new Date();
+                const now = serverNow();
                 const current = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
                 let nextFound = false;
 
@@ -361,7 +368,7 @@
             }
 
             function currentMinutes() {
-                const n = new Date();
+                const n = serverNow();
                 return n.getHours() * 60 + n.getMinutes();
             }
 

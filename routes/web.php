@@ -70,6 +70,8 @@ Route::get('/', function () {
         }
     }
 
+    $serverTimestamp = now()->timestamp * 1000;
+
     $dayNames = [
         0 => 'Minggu',
         1 => 'Senin',
@@ -84,6 +86,7 @@ Route::get('/', function () {
         'schedules' => $schedules,
         'playlists' => $playlists,
         'activePlaylist' => $activePlaylist,
+        'serverTimestamp' => $serverTimestamp,
         'dayName' => $dayNames[$dayOfWeek],
         'todayDate' => $today->format('d F Y'),
         'isSchoolDay' => $isSchoolDay,
