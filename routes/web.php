@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
+use App\Models\BellPlaylist;
 use App\Models\BellSchedule;
 use App\Models\SchoolDay;
 use Carbon\Carbon;
@@ -25,6 +26,15 @@ Route::get('/', function () {
     $firstBell = $schedules->first()?->time?->format('H:i');
     $lastBell = $schedules->last()?->time?->format('H:i');
 
+    $playlists = BellPlaylist::where('is_active', true)
+        ->orderBy('type')
+        ->orderBy('order')
+        ->get()
+        ->filter(function ($p) use ($dayOfWeek) {
+            $days = $p->day_of_week ?? [];
+            return empty($days) || in_array($dayOfWeek, $days);
+        });
+
     if (!$isSchoolDay || $schedules->isEmpty()) {
         $schoolStatus = 'Libur';
     } elseif ($firstBell && $nowTime < $firstBell) {
@@ -47,6 +57,7 @@ Route::get('/', function () {
 
     return view('welcome', [
         'schedules' => $schedules,
+        'playlists' => $playlists,
         'dayName' => $dayNames[$dayOfWeek],
         'todayDate' => $today->format('d F Y'),
         'isSchoolDay' => $isSchoolDay,
@@ -85,6 +96,9 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::put('/schedules/{schedule}', [AdminController::class, 'schedulesUpdate'])->name('schedules.update');
     Route::delete('/schedules/{schedule}', [AdminController::class, 'schedulesDestroy'])->name('schedules.destroy');
     Route::post('/bell-darurat', [AdminController::class, 'bellDarurat'])->name('bell.darurat');
+
+    Route::resource('playlists', \App\Http\Controllers\Admin\BellPlaylistController::class)
+        ->except(['show']);
 });
 
 Route::get('/audio/{filename}', function (string $filename) {
@@ -103,6 +117,31 @@ Route::get('/audio/{filename}', function (string $filename) {
 
     return response()->file($path, ['Content-Type' => $mime]);
 })->where('filename', '.*');
+
+Route::post('/api/playlist-finished', function (\Illuminate\Http\Request $request) {
+    $type = $request->input('type');
+    $name = $request->input('name');
+
+    $playlist = \App\Models\BellPlaylist::where('name', $name)->where('type', $type)->first();
+
+    $action = null;
+    $delay = 0;
+    $command = null;
+
+    if ($playlist) {
+        $action = $playlist->action_after;
+        $delay = $playlist->action_after_delay;
+        $command = $playlist->custom_command;
+    }
+
+    broadcast(new \App\Events\PlaylistFinished($type, $name, $action, $delay, $command));
+
+    if ($action) {
+        broadcast(new \App\Events\ShutdownRequested($action, $command, $delay));
+    }
+
+    return response()->json(['status' => 'ok']);
+});
 
 Route::get('/api/emergency-bell', function () {
     $emergency = \Illuminate\Support\Facades\Cache::get('emergency_bell');

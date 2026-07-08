@@ -40,6 +40,24 @@ if (cfg) {
                 if (typeof window.playBell === 'function') {
                     window.playBell(e.audio_file);
                 }
+            })
+            .listen('PlaylistStarted', (e) => {
+                console.log('[Echo] PlaylistStarted received:', e);
+                if (typeof window.handlePlaylistStarted === 'function') {
+                    window.handlePlaylistStarted(e);
+                }
+            })
+            .listen('PlaylistFinished', (e) => {
+                console.log('[Echo] PlaylistFinished received:', e);
+                if (typeof window.handlePlaylistFinished === 'function') {
+                    window.handlePlaylistFinished(e);
+                }
+            })
+            .listen('ShutdownRequested', (e) => {
+                console.log('[Echo] ShutdownRequested received:', e);
+                if (typeof window.handleShutdownRequested === 'function') {
+                    window.handleShutdownRequested(e);
+                }
             });
     });
 } else {

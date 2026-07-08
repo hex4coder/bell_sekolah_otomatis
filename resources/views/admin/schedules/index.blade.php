@@ -45,6 +45,10 @@
                    class="px-4 py-2 rounded-lg font-medium {{ request()->routeIs('admin.school-days') ? 'bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
                     Hari Sekolah
                 </a>
+                <a href="{{ route('admin.playlists.index') }}"
+                   class="px-4 py-2 rounded-lg font-medium {{ request()->routeIs('admin.playlists*') ? 'bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
+                    Playlist
+                </a>
             </div>
 
             <div id="flash-success" data-message="{{ session('success') }}" class="hidden"></div>
