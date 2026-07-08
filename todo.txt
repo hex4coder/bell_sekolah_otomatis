@@ -1,0 +1,124 @@
+TODO: Integrasi Laravel Reverb — Push Realtime dari Server ke Client
+====================================================================
+
+Status: ✅ Selesai / ⬜ Pending
+
+--------------------------------------------------------------------------------
+Branch: dev (created)
+--------------------------------------------------------------------------------
+
+✅ Buat branch dev untuk development fitur baru
+
+--------------------------------------------------------------------------------
+Phase 1: Backend — Install & Konfigurasi Reverb
+--------------------------------------------------------------------------------
+
+✅ 1.1 Install paket composer
+       $ composer require laravel/reverb
+
+✅ 1.2 Jalankan installer Reverb
+       $ php artisan reverb:install
+       (config/reverb.php, config/broadcasting.php, routes/channels.php, env vars)
+
+✅ 1.3 Update .env
+       BROADCAST_CONNECTION=reverb
+       REVERB_APP_ID=593920
+       REVERB_APP_KEY=l6gw87idlec8pvrarutx
+       REVERB_APP_SECRET=n9fyfpat3rvcvbjndpjq
+       REVERB_HOST="localhost"
+       REVERB_PORT=8081
+       REVERB_SCHEME=http
+       REVERB_SERVER_HOST=0.0.0.0
+       REVERB_SERVER_PORT=8081
+       VITE_REVERB_APP_KEY, VITE_REVERB_HOST, VITE_REVERB_PORT, VITE_REVERB_SCHEME
+
+✅ 1.4 Update bootstrap/app.php
+       - Tambah channels: __DIR__.'/../routes/channels.php' ke ->withRouting()
+
+✅ 1.5 Buat routes/channels.php
+       - Channel public 'bell' (Broadcast::channel('bell', fn() => true))
+
+--------------------------------------------------------------------------------
+Phase 2: Backend — Events & Broadcasting
+--------------------------------------------------------------------------------
+
+✅ 2.1 Buat Event: app/Events/BellPlayed.php
+       - implements ShouldBroadcast
+       - broadcast on channel 'bell'
+       - payload: id, name, time, audio_file
+
+✅ 2.2 Buat Event: app/Events/EmergencyBellTriggered.php
+       - implements ShouldBroadcast
+       - broadcast on channel 'bell'
+       - payload: audio_file
+
+✅ 2.3 Buat Event: app/Events/ScheduleUpdated.php
+       - implements ShouldBroadcast
+       - broadcast on channel 'bell'
+
+✅ 2.4 Trigger events di AdminController:
+       - bellDarurat() → EmergencyBellTriggered
+       - schedulesStore() → ScheduleUpdated (2 paths: all_days & single)
+       - schedulesUpdate() → ScheduleUpdated
+       - schedulesDestroy() → ScheduleUpdated
+       - schedulesReset() → ScheduleUpdated
+       - schedulesDestroyDay() → ScheduleUpdated
+       - schedulesCopy() → ScheduleUpdated
+       - schedulesGenerateDefault() → ScheduleUpdated
+
+--------------------------------------------------------------------------------
+Phase 3: Frontend — Install Echo & Setup Client
+--------------------------------------------------------------------------------
+
+✅ 3.1 Install npm packages via Sail
+       $ npm install laravel-echo pusher-js
+
+✅ 3.2 Buat resources/js/bootstrap.js
+       - import Echo + Pusher
+       - window.Pusher = Pusher
+       - window.Echo = new Echo({ broadcaster: 'reverb', key, wsHost, wsPort, ... })
+
+✅ 3.3 Update resources/js/app.js
+       - import './bootstrap.js'
+
+--------------------------------------------------------------------------------
+Phase 4: Frontend — Update Landing Page (welcome.blade.php)
+--------------------------------------------------------------------------------
+
+✅ 4.1 HAPUS polling intervals:
+       - checkSchedules() function → dihapus
+       - setInterval(checkSchedules, 10000) → dihapus
+       - setInterval(fetch emergency, 5000) → dihapus
+       - playedIds Set → dihapus
+       - checkSchedules() initial call → dihapus
+
+✅ 4.2 TAMBAH Echo listeners untuk channel 'bell':
+       Echo.channel('bell')
+           .listen('BellPlayed', (e) => { playBell, updateScheduleLabels, updateSchoolStatus })
+           .listen('EmergencyBellTriggered', (e) => { playBell })
+
+✅ 4.3 Fallback refresh tiap 30 detik (updateSchoolStatus + updateScheduleLabels)
+
+--------------------------------------------------------------------------------
+Phase 5: Infrastructure — Menjalankan Reverb
+--------------------------------------------------------------------------------
+
+✅ 5.1 Reverb server jalan via supervisor di container
+       - Port 8081 (dalam container) → 8081 (host)
+       - php artisan reverb:start sebagai supervisor program
+
+✅ 5.2 Supervisor config di docker/8.3-alpine/supervisord.conf
+       [program:reverb]
+       command=php /var/www/html/artisan reverb:start
+
+✅ 5.3 Port 8081 di-expose di docker-compose.yml
+
+--------------------------------------------------------------------------------
+Verifikasi
+--------------------------------------------------------------------------------
+
+✅ App HTTP 200 — http://localhost:8080/
+✅ Broadcasting driver: reverb
+✅ Reverb WebSocket server running on port 8081
+✅ Vite build sukses (7 modules, manifest.json generated)
+✅ Semua milik file di chown ke kaco:kaco
