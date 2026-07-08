@@ -62,6 +62,8 @@ class ProcessBellSchedules extends Command
 
     private function processPlaylists(int $today, string $current): void
     {
+        $this->checkEmergencyClosing($current);
+
         $playlists = BellPlaylist::where('is_active', true)->orderBy('order')->get();
 
         foreach ($playlists as $playlist) {
@@ -94,6 +96,47 @@ class ProcessBellSchedules extends Command
 
             Log::info("Playlist started: {$playlist->name} ({$playlist->type}) at {$current}");
         }
+    }
+
+    private function checkEmergencyClosing(string $current): void
+    {
+        $triggerAt = Cache::get('emergency_closing_at');
+        if (!$triggerAt || now()->timestamp < $triggerAt) {
+            return;
+        }
+
+        $playlistId = Cache::get('emergency_closing_id');
+        if (!$playlistId) {
+            Cache::forget('emergency_closing_at');
+            return;
+        }
+
+        $playlist = BellPlaylist::find($playlistId);
+        if (!$playlist || !$playlist->is_active) {
+            Cache::forget('emergency_closing_at');
+            Cache::forget('emergency_closing_id');
+            return;
+        }
+
+        $audioFiles = array_column($playlist->audio_assets ?? [], 'filename');
+        if (empty($audioFiles)) {
+            return;
+        }
+
+        $endTime = $playlist->time_range_end?->format('H:i');
+
+        broadcast(new PlaylistStarted(
+            $playlist->type,
+            $playlist->name,
+            $audioFiles,
+            $endTime,
+        ));
+
+        Log::info("Playlist started (emergency closing): {$playlist->name} at {$current}");
+
+        Cache::put('playlist_fired_' . $playlist->id . '_' . now()->format('Ymd'), true, now()->endOfDay());
+        Cache::forget('emergency_closing_at');
+        Cache::forget('emergency_closing_id');
     }
 
     private function playlistAppliesToday(BellPlaylist $playlist, int $today, string $current): bool

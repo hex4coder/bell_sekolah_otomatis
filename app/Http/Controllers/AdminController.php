@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\EmergencyBellTriggered;
 use App\Events\ScheduleUpdated;
 use App\Models\AudioAsset;
+use App\Models\BellPlaylist;
 use App\Models\BellSchedule;
 use App\Models\SchoolDay;
 use App\Models\User;
@@ -386,6 +387,18 @@ class AdminController extends Controller
 
         Cache::put('emergency_bell', $audioFile, now()->addMinutes(2));
         broadcast(new EmergencyBellTriggered($audioFile));
+
+        // Jadwalkan playlist penutup 1 menit setelah darurat pulang
+        $closingPlaylist = BellPlaylist::where('type', 'closing')
+            ->where('is_active', true)
+            ->whereJsonContains('day_of_week', now()->dayOfWeek)
+            ->first();
+
+        if ($closingPlaylist) {
+            $triggerAt = now()->addMinute();
+            Cache::put('emergency_closing_at', $triggerAt->timestamp, $triggerAt->copy()->addMinutes(10));
+            Cache::put('emergency_closing_id', $closingPlaylist->id, $triggerAt->copy()->addMinutes(10));
+        }
 
         return response()->json([
             'success' => true,
