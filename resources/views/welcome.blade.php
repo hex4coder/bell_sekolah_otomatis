@@ -347,8 +347,6 @@
             let playlistTotal = 0;
             let playlistType = '';
             let playlistName = '';
-            let shutdownTimer = null;
-
             window.handlePlaylistStarted = function(e) {
                 console.log('[Playlist] Started:', e.type, e.name);
                 playlistType = e.type;
@@ -418,44 +416,6 @@
                 }, 5000);
             };
 
-            window.handleShutdownRequested = function(e) {
-                console.log('[Playlist] Shutdown requested:', e.action);
-                let countdown = e.delay || 0;
-                const overlay = document.getElementById('shutdown-overlay');
-                const textEl = document.getElementById('shutdown-text');
-                if (!overlay || !textEl) return;
-
-                overlay.classList.remove('hidden');
-                const actionLabel = e.action === 'shutdown' ? 'Shutdown' : e.action === 'restart' ? 'Restart' : e.action;
-                textEl.textContent = 'Sistem akan ' + actionLabel + (countdown > 0 ? ' dalam ' + countdown + ' detik...' : '...');
-
-                if (countdown > 0 && shutdownTimer === null) {
-                    shutdownTimer = setInterval(function() {
-                        countdown--;
-                        textEl.textContent = 'Sistem akan ' + actionLabel + ' dalam ' + countdown + ' detik...';
-                        if (countdown <= 0) {
-                            clearInterval(shutdownTimer);
-                            shutdownTimer = null;
-                            textEl.textContent = 'Sistem sedang ' + actionLabel + '...';
-                        }
-                    }, 1000);
-                }
-            };
         </script>
-
-        <audio id="playlist-audio" preload="auto" style="display:none"></audio>
-
-        {{-- Shutdown / Restart Overlay --}}
-        <div id="shutdown-overlay" class="hidden fixed inset-0 z-50 bg-black/70 flex items-center justify-center">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full mx-4 p-8 text-center">
-                <div class="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-8 h-8 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                    </svg>
-                </div>
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Perhatian!</h3>
-                <p id="shutdown-text" class="text-sm text-gray-500 dark:text-gray-400"></p>
-            </div>
-        </div>
     </body>
 </html>

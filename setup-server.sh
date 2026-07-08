@@ -100,32 +100,9 @@ StandardError=journal
 WantedBy=multi-user.target
 SERVICE
 
-cat > /etc/systemd/system/bell-queue-worker.service << 'SERVICE'
-[Unit]
-Description=Laravel Queue Worker (Bell Actions)
-After=network.target
-
-[Service]
-Type=simple
-User=www-data
-Group=www-data
-WorkingDirectory=/var/www/bell_sekolah_otomatis
-ExecStart=${PHP_BIN} artisan queue:work --sleep=3 --tries=3 --max-time=3600
-Restart=always
-RestartSec=5
-StandardOutput=journal
-StandardError=journal
-
-[Install]
-WantedBy=multi-user.target
-SERVICE
-
-# Izinkan www-data menjalankan shutdown/reboot tanpa password
-echo "www-data ALL=(ALL) NOPASSWD: /sbin/shutdown, /sbin/reboot" > /etc/sudoers.d/bell-shutdown
-
 systemctl daemon-reload
-systemctl enable reverb bell-scheduler bell-queue-worker
-systemctl restart reverb bell-scheduler bell-queue-worker
+systemctl enable reverb bell-scheduler
+systemctl restart reverb bell-scheduler
 
 # ─── 4. Firewall ────────────────────────────────────────────────
 echo ">>> Buka port 8081 di firewall..."

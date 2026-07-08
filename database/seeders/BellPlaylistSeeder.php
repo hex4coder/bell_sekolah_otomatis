@@ -32,9 +32,6 @@ class BellPlaylistSeeder extends Seeder
             'time_range_end' => null,
             'is_active' => true,
             'day_of_week' => [1, 2, 3, 4],
-            'action_after' => null,
-            'action_after_delay' => 0,
-            'custom_command' => null,
             'order' => 0,
         ]);
 
@@ -46,9 +43,6 @@ class BellPlaylistSeeder extends Seeder
             'time_range_end' => null,
             'is_active' => true,
             'day_of_week' => [5],
-            'action_after' => null,
-            'action_after_delay' => 0,
-            'custom_command' => null,
             'order' => 0,
         ]);
 
@@ -60,9 +54,6 @@ class BellPlaylistSeeder extends Seeder
             'time_range_end' => '16:05',
             'is_active' => true,
             'day_of_week' => [1, 2, 3, 4],
-            'action_after' => 'shutdown',
-            'action_after_delay' => 5,
-            'custom_command' => null,
             'order' => 0,
         ]);
 
@@ -74,9 +65,6 @@ class BellPlaylistSeeder extends Seeder
             'time_range_end' => '12:15',
             'is_active' => true,
             'day_of_week' => [5],
-            'action_after' => 'shutdown',
-            'action_after_delay' => 5,
-            'custom_command' => null,
             'order' => 0,
         ]);
     }

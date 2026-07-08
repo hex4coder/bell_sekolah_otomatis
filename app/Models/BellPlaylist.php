@@ -14,9 +14,6 @@ class BellPlaylist extends Model
         'time_range_end',
         'is_active',
         'day_of_week',
-        'action_after',
-        'action_after_delay',
-        'custom_command',
         'order',
     ];
 
@@ -28,7 +25,6 @@ class BellPlaylist extends Model
             'time_range_start' => 'datetime:H:i',
             'time_range_end' => 'datetime:H:i',
             'is_active' => 'boolean',
-            'action_after_delay' => 'integer',
             'order' => 'integer',
         ];
     }

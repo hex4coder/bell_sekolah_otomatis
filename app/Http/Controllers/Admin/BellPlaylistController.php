@@ -76,9 +76,6 @@ class BellPlaylistController extends Controller
             'is_active' => 'sometimes|boolean',
             'day_of_week' => 'nullable|array',
             'day_of_week.*' => 'integer|between:0,6',
-            'action_after' => 'nullable|string|max:255',
-            'action_after_delay' => 'nullable|integer|min:0',
-            'custom_command' => 'nullable|string',
             'order' => 'nullable|integer|min:0',
         ];
 
@@ -86,7 +83,6 @@ class BellPlaylistController extends Controller
 
         $validated['audio_assets'] = $this->resolveAudioAssets($validated['audio_assets']);
         $validated['is_active'] = $request->boolean('is_active', true);
-        $validated['action_after_delay'] = (int) ($validated['action_after_delay'] ?? 0);
         $validated['order'] = (int) ($validated['order'] ?? 0);
 
         return $validated;

@@ -52,12 +52,6 @@ if (cfg) {
                 if (typeof window.handlePlaylistFinished === 'function') {
                     window.handlePlaylistFinished(e);
                 }
-            })
-            .listen('ShutdownRequested', (e) => {
-                console.log('[Echo] ShutdownRequested received:', e);
-                if (typeof window.handleShutdownRequested === 'function') {
-                    window.handleShutdownRequested(e);
-                }
             });
     });
 } else {

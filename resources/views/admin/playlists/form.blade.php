@@ -83,33 +83,6 @@
                     </div>
                 </div>
 
-                {{-- Action After (for closing) --}}
-                <div id="action-section" class="{{ $playlist?->type === 'closing' ? '' : 'hidden' }}">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Aksi Setelah Selesai</label>
-                            <select name="action_after"
-                                    class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                                <option value="">Tidak ada</option>
-                                <option value="shutdown" {{ old('action_after', $playlist?->action_after) === 'shutdown' ? 'selected' : '' }}>Shutdown</option>
-                                <option value="restart" {{ old('action_after', $playlist?->action_after) === 'restart' ? 'selected' : '' }}>Restart</option>
-                                <option value="custom" {{ old('action_after', $playlist?->action_after) === 'custom' ? 'selected' : '' }}>Custom Command</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tunda (detik)</label>
-                            <input type="number" name="action_after_delay" value="{{ old('action_after_delay', $playlist?->action_after_delay ?? 0) }}" min="0"
-                                   class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                        </div>
-                    </div>
-                    <div id="custom-command-section" class="mt-4 {{ old('action_after', $playlist?->action_after) === 'custom' ? '' : 'hidden' }}">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Command</label>
-                        <input type="text" name="custom_command" value="{{ old('custom_command', $playlist?->custom_command) }}"
-                               placeholder="contoh: /usr/bin/systemctl suspend"
-                               class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                    </div>
-                </div>
-
                 {{-- Order & Active --}}
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -143,16 +116,6 @@
     </div>
 
     <script>
-        // Toggle action section based on type
-        document.querySelector('[name="type"]')?.addEventListener('change', function() {
-            document.getElementById('action-section').classList.toggle('hidden', this.value !== 'closing');
-        });
-
-        // Toggle custom command input
-        document.querySelector('[name="action_after"]')?.addEventListener('change', function() {
-            document.getElementById('custom-command-section').classList.toggle('hidden', this.value !== 'custom');
-        });
-
         // Allow drag-to-reorder audio items using native drag/drop
         (function() {
             const list = document.getElementById('audio-list');

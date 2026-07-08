@@ -68,9 +68,6 @@
                                             · {{ $p->time_range_start->format('H:i') }}
                                             @if ($p->time_range_end) – {{ $p->time_range_end->format('H:i') }} @endif
                                         @endif
-                                        @if ($p->action_after)
-                                            · Aksi: {{ $p->action_after }}
-                                        @endif
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-2 shrink-0">

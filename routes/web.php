@@ -122,26 +122,7 @@ Route::post('/api/playlist-finished', function (\Illuminate\Http\Request $reques
     $type = $request->input('type');
     $name = $request->input('name');
 
-    $playlist = \App\Models\BellPlaylist::where('name', $name)->where('type', $type)->first();
-
-    $action = null;
-    $delay = 0;
-    $command = null;
-
-    if ($playlist) {
-        $action = $playlist->action_after;
-        $delay = $playlist->action_after_delay;
-        $command = $playlist->custom_command;
-    }
-
-    broadcast(new \App\Events\PlaylistFinished($type, $name, $action, $delay, $command));
-
-    if ($action) {
-        broadcast(new \App\Events\ShutdownRequested($action, $command, $delay));
-
-        \App\Jobs\ExecuteSystemAction::dispatch($action, $command)
-            ->delay(now()->addSeconds($delay));
-    }
+    broadcast(new \App\Events\PlaylistFinished($type, $name));
 
     return response()->json(['status' => 'ok']);
 });
