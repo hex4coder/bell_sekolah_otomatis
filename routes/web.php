@@ -138,6 +138,9 @@ Route::post('/api/playlist-finished', function (\Illuminate\Http\Request $reques
 
     if ($action) {
         broadcast(new \App\Events\ShutdownRequested($action, $command, $delay));
+
+        \App\Jobs\ExecuteSystemAction::dispatch($action, $command)
+            ->delay(now()->addSeconds($delay));
     }
 
     return response()->json(['status' => 'ok']);
