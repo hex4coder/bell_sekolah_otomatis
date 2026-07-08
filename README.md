@@ -224,6 +224,94 @@ php artisan config:clear
 php artisan view:clear
 ```
 
+## Konfigurasi Client (Browser)
+
+Aplikasi ini menggunakan WebSocket (Laravel Reverb) untuk memicu suara bel secara real-time. Browser client harus diizinkan memutar audio otomatis (autoplay) dan tidak boleh menidurkan tab. Berikut panduan untuk Firefox dan Chrome.
+
+### Firefox
+
+#### Langkah 1: Bypass Aturan Autoplay
+
+Firefox memiliki pengamanan autoplay yang cukup ketat. Agar browser mengizinkan suara bel berbunyi otomatis tanpa perlu diklik terlebih dahulu, lakukan pengaturan ini sekali saja di PC Klien:
+
+1. Buka Firefox di PC Klien.
+2. Di kolom alamat (address bar), ketik `about:config` lalu tekan Enter.
+3. Jika muncul peringatan keamanan, klik **Accept the Risk and Continue**.
+4. Di kolom pencarian atas, cari: `media.autoplay.default`
+5. Ubah nilainya dari `5` (atau `1`) menjadi `0` (Angka `0` artinya Allow Autoplay).
+6. Selanjutnya, cari: `media.autoplay.blocking_policy`
+7. Ubah nilainya menjadi `0`.
+8. Tutup Firefox.
+
+#### Langkah 2: Matikan Tab Unloading
+
+Firefox memiliki fitur `Tab Unloading` yang otomatis menidurkan tab pasif untuk menghemat RAM. Matikan agar koneksi WebSocket tidak terputus.
+
+1. Buka kembali `about:config` di Firefox.
+2. Cari: `browser.tabs.unloadOnLowMemory`
+3. Ubah nilainya menjadi `false` (klik dua kali).
+
+#### Langkah 3: Auto-Start Firefox Kiosk Mode
+
+**Windows:** Buat file `mulai-bel.bat`:
+
+```batch
+@echo off
+title Menjalankan Bel Sekolah Firefox Kiosk Mode
+echo Mengaktifkan sistem bel sekolah...
+timeout /t 5
+start "" "C:\Program Files\Mozilla Firefox\firefox.exe" --kiosk "http://IP_SERVER_ANDA"
+exit
+```
+
+**Linux (Ubuntu/Debian):** Buat file `mulai-bel.sh`:
+
+```bash
+#!/bin/bash
+sleep 5
+firefox --kiosk "http://IP_SERVER_ANDA"
+```
+
+> **Catatan:** Mode `--kiosk` membuka Firefox satu layar penuh tanpa address bar atau tombol close.
+
+### Google Chrome
+
+#### Langkah 1: Bypass Aturan Autoplay
+
+Chrome juga memblokir autoplay audio. Untuk mengizinkannya, akses halaman bel sekolah terlebih dahulu, lalu klik ikon gembok di address bar → **Site Settings** → **Sound** → ubah menjadi **Allow**.
+
+Cara alternatif melalui pengaturan global:
+1. Buka `chrome://settings/content/sound` di address bar.
+2. Ubah pengaturan menjadi **Allow sites to play sound**.
+
+#### Langkah 2: Matikan Memory Saver
+
+Chrome memiliki fitur **Memory Saver** yang bisa menidurkan tab agar koneksi WebSocket terputus.
+
+1. Buka `chrome://settings/performance`.
+2. Matikan **Memory Saver** (toggle ke off).
+
+#### Langkah 3: Auto-Start Chrome Kiosk Mode
+
+**Windows:** Buat file `mulai-bel.bat`:
+
+```batch
+@echo off
+title Menjalankan Bel Sekolah Chrome Kiosk Mode
+echo Mengaktifkan sistem bel sekolah...
+timeout /t 5
+start "" "C:\Program Files\Google\Chrome\Application\chrome.exe" --kiosk "http://IP_SERVER_ANDA"
+exit
+```
+
+**Linux (Ubuntu/Debian):** Buat file `mulai-bel.sh`:
+
+```bash
+#!/bin/bash
+sleep 5
+google-chrome --kiosk "http://IP_SERVER_ANDA"
+```
+
 ## Lisensi
 
 Proyek ini open-source dan dilisensikan di bawah [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html).
