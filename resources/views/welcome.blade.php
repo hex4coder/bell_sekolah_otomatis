@@ -111,6 +111,7 @@
                         </div>
                     </div>
 
+                    <div class="max-h-[calc(100vh-260px)] overflow-y-auto">
                     @if ($schedules->isNotEmpty())
                         @php
                             $now = now()->format('H:i');
@@ -171,6 +172,7 @@
                             <p class="text-slate-400 dark:text-white/30 text-sm mt-1">Selamat beristirahat!</p>
                         </div>
                     @endif
+                    </div>
 
                     {{-- Playlist Info Card --}}
                     @if ($playlists->isNotEmpty())
