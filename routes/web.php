@@ -45,6 +45,31 @@ Route::get('/', function () {
         $schoolStatus = 'Berlangsung';
     }
 
+    $activePlaylist = null;
+    foreach ($playlists as $p) {
+        if (!$isSchoolDay || $schedules->isEmpty()) break;
+
+        $firstBell = $schedules->first()->time->format('H:i');
+        $lastBell = $schedules->last()->time->format('H:i');
+
+        $start = $p->type === 'opening'
+            ? ($p->time_range_start?->format('H:i') ?? Carbon::createFromFormat('H:i', $firstBell)->subMinutes(15)->format('H:i'))
+            : ($p->time_range_start?->format('H:i') ?? $lastBell);
+        $end = $p->type === 'opening'
+            ? ($p->time_range_end?->format('H:i') ?? $firstBell)
+            : ($p->time_range_end?->format('H:i') ?? Carbon::createFromFormat('H:i', $lastBell)->addMinutes(15)->format('H:i'));
+
+        if ($nowTime >= $start && $nowTime < $end) {
+            $activePlaylist = [
+                'type' => $p->type,
+                'name' => $p->name,
+                'audio_files' => array_column($p->audio_assets ?? [], 'filename'),
+                'end_time' => $end,
+            ];
+            break;
+        }
+    }
+
     $dayNames = [
         0 => 'Minggu',
         1 => 'Senin',
@@ -58,6 +83,7 @@ Route::get('/', function () {
     return view('welcome', [
         'schedules' => $schedules,
         'playlists' => $playlists,
+        'activePlaylist' => $activePlaylist,
         'dayName' => $dayNames[$dayOfWeek],
         'todayDate' => $today->format('d F Y'),
         'isSchoolDay' => $isSchoolDay,

@@ -340,6 +340,8 @@
                 updateScheduleLabels();
             }, 30000);
 
+            const activePlaylist = @json($activePlaylist);
+
             // --- Playlist Handling ---
             let playlistAudio = null;
             let playlistQueue = [];
@@ -443,6 +445,11 @@
             function updatePlaylistProgress() {
                 const pct = playlistTotal > 0 ? ((playlistIndex + 1) / playlistTotal * 100) : 0;
                 document.getElementById('playlist-progress').style.width = Math.min(pct, 100) + '%';
+            }
+
+            // Auto-start jika ada playlist aktif saat halaman dimuat
+            if (activePlaylist && activePlaylist.audio_files && activePlaylist.audio_files.length > 0) {
+                window.handlePlaylistStarted(activePlaylist);
             }
 
             window.handlePlaylistFinished = function(e) {
