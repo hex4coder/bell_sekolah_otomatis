@@ -31,6 +31,10 @@ if (cfg) {
                     window.updateSchoolStatus();
                 }
             })
+            .listen('ScheduleUpdated', (e) => {
+                console.log('[Echo] ScheduleUpdated received — reloading');
+                window.location.reload();
+            })
             .listen('EmergencyBellTriggered', (e) => {
                 console.log('[Echo] EmergencyBellTriggered received:', e);
                 if (typeof window.playBell === 'function') {
