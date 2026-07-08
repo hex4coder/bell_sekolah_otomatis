@@ -26,23 +26,23 @@ class BellPlaylistSeeder extends Seeder
 
         BellPlaylist::create([
             'type' => 'opening',
-            'name' => 'Pembuka Senin-Kamis',
+            'name' => 'Pembuka Senin',
             'audio_assets' => $assets,
             'time_range_start' => '06:00',
-            'time_range_end' => null,
+            'time_range_end' => '07:24',
             'is_active' => true,
-            'day_of_week' => [1, 2, 3, 4],
+            'day_of_week' => [1],
             'order' => 0,
         ]);
 
         BellPlaylist::create([
             'type' => 'opening',
-            'name' => 'Pembuka Jumat',
+            'name' => 'Pembuka Selasa-Jumat',
             'audio_assets' => $assets,
             'time_range_start' => '06:00',
-            'time_range_end' => null,
+            'time_range_end' => '07:29',
             'is_active' => true,
-            'day_of_week' => [5],
+            'day_of_week' => [2, 3, 4, 5],
             'order' => 0,
         ]);
 
