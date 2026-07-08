@@ -124,43 +124,205 @@ Verifikasi
 ✅ Semua milik file di chown ke kaco:kaco
 
 -------------------------------------------------------------------------------
-TODO: Putar audio aset otomatis sebelum bell pertama & setelah bell terakhir
+TODO: Fitur Pembuka & Penutup (Playlist Otomatis sebelum/sesudah jadwal)
 -------------------------------------------------------------------------------
+Branch: dev (existing)
+Status: ⬜ Belum dimulai
 
 Deskripsi:
-- Sebelum bell pertama pada hari sekolah aktif, putar audio aset tertentu
-  (misal: lagu Indonesia Raya, atau suara "Selamat pagi").
-- Setelah bell terakhir (bell pulang), putar audio aset tertentu
-  (misal: lagu penutup, atau pengumuman akhir hari).
-- Audio aset bisa dipilih via admin panel (tambah kolom di tabel schedule
-  untuk bell_pembuka dan bell_penutup, atau entri schedule khusus).
+- Putar rangkaian audio aset (playlist) secara otomatis **sebelum bell pertama**
+  pada hari sekolah aktif (pembuka).
+- Putar rangkaian audio aset (playlist) secara otomatis **setelah bell terakhir**
+  (penutup).
+- Setelah semua aset penutup selesai diputar, jalankan **action** tertentu
+  (misal: shutdown komputer client, restart, atau command kustom).
+- Pengaturan dilakukan di panel admin dengan tabel terpisah.
 
-Rencana Implementasi:
-⬜ 1. Buat migration untuk tambah kolom di tabel bell_schedules:
-       - `is_pembuka` boolean (default false) — flag untuk bell pembuka
-       - `is_penutup` boolean (default false) — flag untuk bell penutup
-       Atau alternatif: buat schedule khusus dengan waktu dinamis
-       (sebelum bell pertama / setelah bell terakhir).
+-------------------------------------------------------------------------------
+Phase 1: Database — Tabel bell_playlists
+-------------------------------------------------------------------------------
 
-⬜ 2. Update Scheduler (ProcessBellSchedules):
-       - Sebelum menjalankan schedule regular, cek apakah ada bell
-         pembuka yang harus dimainkan (waktu = bell_pertama - offset).
-       - Setelah semua schedule terlewati, putar bell penutup.
-       - Offset bisa dikonfigurasi (misal: 5 menit sebelum bell pertama).
+⬜ 1.1 Buat migration: create_bell_playlists_table
+       Kolom:
+       - id (bigIncrements)
+       - type (enum: 'opening', 'closing')
+       - name (string) — label/nama playlist
+       - audio_assets (json) — daftar file audio dalam urutan
+         [{asset_id, filename, name, duration?}, ...]
+       - time_range_start (time, nullable) — jam mulai berlaku
+         (misal: pembuka mulai dari jam 06:30 setiap hari)
+       - time_range_end (time, nullable) — jam selesai berlaku
+         (misal: penutup hanya berlaku sampai jam 18:00)
+       - is_active (boolean, default true)
+       - day_of_week (json, nullable) — filter hari tertentu
+         (null = semua hari aktif)
+       - action_after (string, nullable) — command/shell setelah
+         playlist selesai (khusus closing: "shutdown", "custom_command", dll)
+       - action_after_delay (integer, default 0) — delay dalam detik
+         sebelum action dijalankan
+       - order (integer) — urutan jika multiple playlist
+       - created_at, updated_at
 
-⬜ 3. Update Admin Panel → Form jadwal:
-       - Checkbox / toggle untuk menandai jadwal sebagai pembuka/penutup.
-       - Atau form khusus untuk upload audio pembuka & penutup.
+⬜ 1.2 Buat model BellPlaylist
+       - fillable: type, name, audio_assets, time_range_start,
+         time_range_end, is_active, day_of_week, action_after,
+         action_after_delay, order
+       - casts: audio_assets (array), day_of_week (array),
+         time_range_start (datetime:H:i), time_range_end (datetime:H:i),
+         is_active (boolean)
 
-⬜ 4. Update Landing Page:
-       - Tampilkan indikasi bell pembuka/penutup di jadwal.
-       - Echo listener tetap sama (BellPlayed), tidak perlu perubahan.
+⬜ 1.3 Buat seeder default (contoh):
+       - Playlist pembuka: Lagu Indonesia Raya (07:00)
+       - Playlist penutup: Lagu penutup + shutdown (16:00)
 
-⬜ 5. Update route/channels jika diperlukan.
+-------------------------------------------------------------------------------
+Phase 2: Backend — Event & Broadcasting
+-------------------------------------------------------------------------------
 
+⬜ 2.1 Buat Event: PlaylistStarted
+       - broadcast on channel 'bell'
+       - payload: type ('opening'|'closing'), name, index,
+         total_items, audio_file
+
+⬜ 2.2 Buat Event: PlaylistFinished
+       - broadcast on channel 'bell'
+       - payload: type, name, action (string|null),
+         action_delay (int)
+
+⬜ 2.3 Buat Event: ShutdownRequested
+       - broadcast on channel 'bell'
+       - payload: action ('shutdown'|'restart'|'custom'),
+         command (string|null), delay (int)
+       - Client JS akan menangkap event ini dan menjalankan:
+         - shutdown: window.close() atau fetch ke endpoint lokal
+         - custom_command: ditampilkan notifikasi
+
+-------------------------------------------------------------------------------
+Phase 3: Backend — Scheduler (ProcessBellSchedules)
+-------------------------------------------------------------------------------
+
+⬜ 3.1 Setiap menit, scheduler cek:
+       - Apakah sudah waktunya **pembuka**?
+         (time_range_start ≤ now ≤ time_range_start + offset_playlist)
+       - Apakah sudah waktunya **penutup**?
+         (time_range_start ≤ now ≤ time_range_start + offset_playlist)
+
+⬜ 3.2 Logic pembuka:
+       - Cari playlist type='opening' yang aktif dan hari ini cocok
+       - Cek apakah sudah pernah diputar hari ini (cache key)
+       - Jika belum, broadcast PlaylistStarted untuk item pertama
+       - Setiap menit, broadcast item berikutnya
+       - Setelah semua item, tandai selesai
+
+⬜ 3.3 Logic penutup:
+       - Sama seperti pembuka, tapi setelah semua item selesai
+       - Broadcast PlaylistFinished dengan action_after
+       - Jika action_after_delay > 0, tunggu
+       - Broadcast ShutdownRequested
+
+⬜ 3.4 Grace period:
+       - Jika playlist terlewat karena baru dibuat, grace period
+         sama seperti schedule biasa (2 menit)
+
+-------------------------------------------------------------------------------
+Phase 4: Admin Panel — CRUD BellPlaylist
+-------------------------------------------------------------------------------
+
+⬜ 4.1 Buat controller BellPlaylistController (atau extends AdminController)
+       - index() — daftar semua playlist
+       - create() — form tambah
+       - store() — simpan
+       - edit(BellPlaylist) — form edit
+       - update(BellPlaylist) — update
+       - destroy(BellPlaylist) — hapus
+
+⬜ 4.2 Buat view admin/playlists/index.blade.php
+       - Tabel: type, nama, jumlah audio, waktu aktif, status, aksi
+
+⬜ 4.3 Buat view admin/playlists/form.blade.php
+       - Field: type (select: opening/closing), name, is_active
+       - Audio assets picker: pilih multiple audio dari daftar
+         (checkbox + urutkan dengan drag atau input order)
+       - Time range: start_time, end_time (input time)
+       - Day filter: checkbox per hari (atau semua hari)
+       - Action after (khusus closing): dropdown (none, shutdown,
+         restart, custom) + input custom command
+       - Action delay: input number (detik)
+
+⬜ 4.4 Tambah route admin:
+       - GET  /admin/playlists — index
+       - GET  /admin/playlists/create — create form
+       - POST /admin/playlists — store
+       - GET  /admin/playlists/{id}/edit — edit form
+       - PUT  /admin/playlists/{id} — update
+       - DELETE /admin/playlists/{id} — delete
+
+⬜ 4.5 Tambah navigasi admin sidebar ke menu Playlists
+
+-------------------------------------------------------------------------------
+Phase 5: Frontend — Landing Page Listener
+-------------------------------------------------------------------------------
+
+⬜ 5.1 Tambah listener di bootstrap.js:
+       Echo.channel('bell')
+           .listen('PlaylistStarted', (e) => {
+               // Putar audio
+               // Tampilkan overlay/indicator "Pembuka: lagu 1/3"
+               console.log(`[Playlist] ${e.type}: ${e.name} (${e.index+1}/${e.total})`);
+               playBell(e.audio_file);
+           })
+           .listen('PlaylistFinished', (e) => {
+               // Sembunyikan overlay
+               // Jika ada action, persiapkan
+               console.log(`[Playlist] ${e.type} selesai`);
+           })
+           .listen('ShutdownRequested', (e) => {
+               // Jalankan action
+               if (e.action === 'shutdown') {
+                   // Coba shutdown via fetch ke endpoint lokal
+                   // Atau tutup window
+                   window.close();
+               } else if (e.action === 'custom' && e.command) {
+                   alert('Command: ' + e.command);
+               }
+           })
+
+⬜ 5.2 UI overlay di welcome.blade.php:
+       - Overlay kecil di pojok yang menunjukkan status playlist
+         (opsional, bisa pakai SweetAlert atau toast)
+
+-------------------------------------------------------------------------------
+Phase 6: Action Execution — Endpoint Shutdown (Client-side Agent)
+-------------------------------------------------------------------------------
+
+⬜ 6.1 Untuk action shutdown/restart di client PC:
+       - Diperlukan agent/client-side yang bisa menjalankan perintah
+         sistem. Opsi:
+         a) Browser tidak bisa shutdown langsung (sandboxed).
+            Alternatif: fetch ke endpoint di server → server SSH
+            ke client atau jalankan script lokal.
+         b) Buat service kecil (Python/Bash) di client yang polling
+            endpoint di server atau listen WebSocket juga.
+         c) Fallback: browser close window saja (+ instruksi manual
+            untuk shutdown).
+
+⬜ 6.2 Implementasi paling sederhana:
+       - Server menyediakan endpoint GET /api/shutdown
+       - Client agent (script bash/python) polling endpoint ini
+         setiap N detik
+       - Jika ada perintah, jalankan (shutdown now, reboot, dll)
+       - Atau: manfaatkan WebSocket yang sudah ada (ShutdownRequested
+         event → kirim ke agent)
+
+⬜ 6.3 Agent script (opsional):
+       - Python script kecil yang WebSocket client ke Reverb
+         (pakai websockets library)
+       - Atau bash script polling HTTP endpoint
+
+-------------------------------------------------------------------------------
 Catatan:
-- Approach paling sederhana: buat 2 entri schedule khusus di DB dengan
-  flag is_pembuka / is_penutup. Scheduler akan mengecek dan memutarnya
-  bersamaan dengan schedule regular.
-- Atau approach lebih kompleks: buat tabel terpisah (bell_opening, bell_closing)
-  dengan pengaturan waktu offset.
+- Tabel bell_playlists terpisah dari bell_schedules agar lebih fleksibel
+- Audio assets diambil dari tabel audio_assets yang sudah ada
+- Action untuk penutup bisa dikembangkan bertahap (mulai dari
+  notifikasi browser dulu, baru agent) 
+- Grace period 2 menit seperti scheduler reguler
