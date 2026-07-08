@@ -52,6 +52,7 @@ class BellScheduleSeeder extends Seeder
             ['time' => '09:30', 'name' => 'Istirahat 1'],
             ['time' => '09:40', 'name' => 'Akhir Istirahat 1'],
             ['time' => '09:45', 'name' => 'Jam ke-3'],
+            ['time' => '10:00', 'name' => 'Lagu Indonesia Raya'],
             ['time' => '10:25', 'name' => 'Jam ke-4'],
             ['time' => '11:05', 'name' => 'Jam ke-5'],
             ['time' => '11:45', 'name' => 'Istirahat 2'],
@@ -72,6 +73,7 @@ class BellScheduleSeeder extends Seeder
             ['time' => '09:30', 'name' => 'Istirahat 1'],
             ['time' => '09:40', 'name' => 'Akhir Istirahat 1'],
             ['time' => '09:45', 'name' => 'Jam ke-4'],
+            ['time' => '10:00', 'name' => 'Lagu Indonesia Raya'],
             ['time' => '10:25', 'name' => 'Jam ke-5'],
             ['time' => '11:05', 'name' => 'Jam ke-6'],
             ['time' => '11:45', 'name' => 'Istirahat 2'],
@@ -92,6 +94,7 @@ class BellScheduleSeeder extends Seeder
             ['time' => '09:30', 'name' => 'Istirahat'],
             ['time' => '09:40', 'name' => 'Akhir Istirahat'],
             ['time' => '09:45', 'name' => 'Jam ke-4'],
+            ['time' => '10:00', 'name' => 'Lagu Indonesia Raya'],
             ['time' => '10:25', 'name' => 'Jam ke-5'],
             ['time' => '11:45', 'name' => 'Pulang'],
         ];
