@@ -5,6 +5,14 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Sistem Bell Sekolah Otomatis</title>
         @fonts
+        <script>
+            window.__REVERB_CONFIG = {
+                key: '{{ $reverbKey }}',
+                host: '{{ $reverbHost }}',
+                port: {{ (int) $reverbPort }},
+                scheme: '{{ $reverbScheme }}',
+            };
+        </script>
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @else
@@ -197,8 +205,6 @@
             const lastBell = @json($lastBell);
             const isSchoolDay = @json($isSchoolDay);
 
-            let playedIds = new Set();
-
             function updateClock() {
                 const now = new Date();
                 const hours = String(now.getHours()).padStart(2, '0');
@@ -213,19 +219,6 @@
                 const audio = new Audio('/audio/' + filename);
                 audio.volume = 1;
                 audio.play().catch(() => {});
-            }
-
-            function checkSchedules() {
-                const now = new Date();
-                const current = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-
-                for (const s of schedules) {
-                    if (playedIds.has(s.id)) continue;
-                    if (s.time === current) {
-                        playedIds.add(s.id);
-                        playBell(s.audio_file);
-                    }
-                }
             }
 
             function updateSchoolStatus() {
@@ -276,25 +269,14 @@
                 }
             }
 
-            setInterval(function() {
-                checkSchedules();
-                updateSchoolStatus();
-                updateScheduleLabels();
-            }, 10000);
-            checkSchedules();
             updateSchoolStatus();
             updateScheduleLabels();
 
-            // Poll emergency bell every 5 seconds
-            setInterval(async function() {
-                try {
-                    const res = await fetch('/api/emergency-bell');
-                    const data = await res.json();
-                    if (data.audio_file) {
-                        playBell(data.audio_file);
-                    }
-                } catch (e) {}
-            }, 5000);
+            // Fallback periodic refresh for labels/status (every 30s)
+            setInterval(function() {
+                updateSchoolStatus();
+                updateScheduleLabels();
+            }, 30000);
         </script>
     </body>
 </html>

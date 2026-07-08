@@ -53,6 +53,10 @@ Route::get('/', function () {
         'schoolStatus' => $schoolStatus,
         'firstBell' => $firstBell,
         'lastBell' => $lastBell,
+        'reverbKey' => config('broadcasting.connections.reverb.key'),
+        'reverbHost' => request()->getHost(),
+        'reverbPort' => config('broadcasting.connections.reverb.options.port'),
+        'reverbScheme' => config('broadcasting.connections.reverb.options.scheme'),
     ]);
 });
 

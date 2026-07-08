@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\EmergencyBellTriggered;
+use App\Events\ScheduleUpdated;
 use App\Models\AudioAsset;
 use App\Models\BellSchedule;
 use App\Models\SchoolDay;
@@ -225,11 +227,14 @@ class AdminController extends Controller
             }
             $dayLabels = array_map(fn($d) => $dayNames[$d] ?? '?', $activeDays);
             $label = implode(', ', $dayLabels);
+            broadcast(new ScheduleUpdated);
             return redirect()->route('admin.schedules')
                 ->with('success', "Jadwal bell berhasil ditambahkan untuk: {$label}.");
         }
 
         BellSchedule::create($validated);
+
+        broadcast(new ScheduleUpdated);
 
         return redirect()->route('admin.schedules')->with('success', "Jadwal bell berhasil ditambahkan untuk {$dayNames[$validated['day_of_week']]}.");
     }
@@ -246,12 +251,16 @@ class AdminController extends Controller
 
         $schedule->update($validated);
 
+        broadcast(new ScheduleUpdated);
+
         return redirect()->route('admin.schedules')->with('success', 'Jadwal bell berhasil diperbarui.');
     }
 
     public function schedulesDestroy(BellSchedule $schedule)
     {
         $schedule->delete();
+
+        broadcast(new ScheduleUpdated);
 
         return redirect()->route('admin.schedules')->with('success', 'Jadwal bell berhasil dihapus.');
     }
@@ -260,6 +269,8 @@ class AdminController extends Controller
     {
         $count = BellSchedule::count();
         BellSchedule::truncate();
+
+        broadcast(new ScheduleUpdated);
 
         return redirect()->route('admin.schedules')
             ->with('success', "Semua jadwal bell ({$count} jadwal) berhasil direset.");
@@ -272,6 +283,8 @@ class AdminController extends Controller
         $count = BellSchedule::where('day_of_week', $day)->count();
 
         BellSchedule::where('day_of_week', $day)->delete();
+
+        broadcast(new ScheduleUpdated);
 
         return redirect()->route('admin.schedules')
             ->with('success', "Semua jadwal {$dayName} ({$count} jadwal) berhasil dihapus.");
@@ -316,6 +329,8 @@ class AdminController extends Controller
         $dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
         $sourceName = $dayNames[$sourceDay];
 
+        broadcast(new ScheduleUpdated);
+
         return redirect()->route('admin.schedules')
             ->with('success', "Jadwal {$sourceName} berhasil disalin ke " . count($targetDays) . " hari ({$copied} jadwal).");
     }
@@ -325,6 +340,8 @@ class AdminController extends Controller
         BellSchedule::truncate();
 
         Artisan::call('db:seed', ['--class' => 'Database\\Seeders\\BellScheduleSeeder', '--force' => true]);
+
+        broadcast(new ScheduleUpdated);
 
         return redirect()->route('admin.schedules')
             ->with('success', 'Jadwal default berhasil dibuat.');
@@ -368,6 +385,7 @@ class AdminController extends Controller
         }
 
         Cache::put('emergency_bell', $audioFile, now()->addMinutes(2));
+        broadcast(new EmergencyBellTriggered($audioFile));
 
         return response()->json([
             'success' => true,
