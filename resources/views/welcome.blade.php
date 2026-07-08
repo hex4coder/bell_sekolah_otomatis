@@ -407,19 +407,26 @@
 
             function playNextInQueue() {
                 if (playlistEndTime !== null && currentMinutes() >= playlistEndTime) {
-                    console.log('[Playlist] End time reached before playing next');
+                    console.log('[Playlist] End time reached, stopping');
                     stopPlaylist();
                     return;
                 }
 
                 if (playlistIndex >= playlistTotal) {
-                    if (playlistEndInterval) clearInterval(playlistEndInterval);
-                    fetch('{{ url('/api/playlist-finished') }}', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                        body: JSON.stringify({ type: playlistType, name: playlistName })
-                    }).catch(() => {});
-                    return;
+                    if (playlistEndTime !== null) {
+                        // Loop: ulang dari awal sampai waktu selesai tiba
+                        console.log('[Playlist] All songs done, looping...');
+                        playlistIndex = 0;
+                    } else {
+                        // Tanpa end_time: sekali putar lalu selesai
+                        if (playlistEndInterval) clearInterval(playlistEndInterval);
+                        fetch('{{ url('/api/playlist-finished') }}', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                            body: JSON.stringify({ type: playlistType, name: playlistName })
+                        }).catch(() => {});
+                        return;
+                    }
                 }
 
                 const filename = playlistQueue[playlistIndex];
