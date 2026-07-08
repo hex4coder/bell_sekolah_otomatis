@@ -98,6 +98,20 @@
                         <span class="text-xs text-slate-400 dark:text-white/40">{{ $schedules->count() }} event</span>
                     </div>
 
+                    {{-- Playlist Status --}}
+                    <div id="playlist-status" class="hidden px-6 py-3 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 border-b border-slate-200 dark:border-white/5">
+                        <div class="flex items-center gap-3">
+                            <div class="flex-1 min-w-0">
+                                <p id="playlist-status-text" class="text-sm font-medium text-slate-700 dark:text-white/80"></p>
+                                <div class="mt-1 w-full bg-slate-200 dark:bg-white/10 rounded-full h-1.5">
+                                    <div id="playlist-progress" class="bg-gradient-to-r from-blue-500 to-purple-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <span id="playlist-counter" class="text-xs text-slate-400 dark:text-white/40 shrink-0"></span>
+                        </div>
+                    </div>
+
+                    <div class="max-h-[calc(100vh-260px)] overflow-y-auto">
                     @if ($schedules->isNotEmpty())
                         @php
                             $now = now()->format('H:i');
@@ -158,6 +172,56 @@
                             <p class="text-slate-400 dark:text-white/30 text-sm mt-1">Selamat beristirahat!</p>
                         </div>
                     @endif
+                    </div>
+
+                    {{-- Playlist Info Card --}}
+                    @if ($playlists->isNotEmpty())
+                        @php
+                            $now = now()->format('H:i');
+                        @endphp
+                        <div class="mt-4 bg-white/80 dark:bg-white/5 backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-white/10 overflow-hidden">
+                            <div class="px-6 py-4 border-b border-slate-200 dark:border-white/5">
+                                <h2 class="text-lg font-semibold text-slate-800 dark:text-white">Playlist Hari Ini</h2>
+                            </div>
+                            <div class="divide-y divide-slate-200 dark:divide-white/5">
+                                @foreach ($playlists as $p)
+                                    @php
+                                        $label = $p->type === 'opening' ? 'Pembuka' : 'Penutup';
+                                        $rangeStart = $p->time_range_start?->format('H:i');
+                                        $rangeEnd = $p->time_range_end?->format('H:i');
+                                        $songs = array_column($p->audio_assets ?? [], 'name');
+                                        $isActive = $now >= ($rangeStart ?? '00:00') && $now <= ($rangeEnd ?? '23:59');
+                                    @endphp
+                                    <div class="px-6 py-4 {{ $isActive ? 'bg-blue-50 dark:bg-blue-500/5 border-l-2 border-blue-400' : '' }}">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="text-xs font-medium px-2 py-0.5 rounded-full {{ $p->type === 'opening' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300' }}">
+                                                {{ $label }}
+                                            </span>
+                                            <span class="text-sm font-medium text-slate-700 dark:text-white/80">{{ $p->name }}</span>
+                                            @if ($rangeStart || $rangeEnd)
+                                                <span class="text-xs text-slate-400 dark:text-white/40">
+                                                    {{ $rangeStart ?? '...' }} – {{ $rangeEnd ?? '...' }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                        @if (!empty($songs))
+                                            <div class="flex flex-wrap gap-1.5">
+                                                @foreach ($p->audio_assets ?? [] as $asset)
+                                                    @php $filename = $asset['filename'] ?? ''; @endphp
+                                                    <button onclick="playBell('{{ $filename }}')" class="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-white/50 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-white/70 transition cursor-pointer">
+                                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                                        {{ $asset['name'] ?? $filename }}
+                                                    </button>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <p class="text-xs text-slate-400 dark:text-white/30 italic">Belum ada audio</p>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </main>
@@ -205,8 +269,15 @@
             const lastBell = @json($lastBell);
             const isSchoolDay = @json($isSchoolDay);
 
+            // Gunakan waktu server, bukan client local
+            const serverStart = @json($serverTimestamp);
+            const clientStart = Date.now();
+            function serverNow() {
+                return new Date(serverStart + (Date.now() - clientStart));
+            }
+
             function updateClock() {
-                const now = new Date();
+                const now = serverNow();
                 const hours = String(now.getHours()).padStart(2, '0');
                 const minutes = String(now.getMinutes()).padStart(2, '0');
                 const seconds = String(now.getSeconds()).padStart(2, '0');
@@ -222,7 +293,7 @@
             }
 
             function updateSchoolStatus() {
-                const now = new Date();
+                const now = serverNow();
                 const current = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
                 const el = document.getElementById('school-status-text');
                 if (!el) return;
@@ -239,7 +310,7 @@
             }
 
             function updateScheduleLabels() {
-                const now = new Date();
+                const now = serverNow();
                 const current = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
                 let nextFound = false;
 
@@ -277,6 +348,138 @@
                 updateSchoolStatus();
                 updateScheduleLabels();
             }, 30000);
+
+            const activePlaylist = @json($activePlaylist);
+
+            // --- Playlist Handling ---
+            let playlistAudio = null;
+            let playlistQueue = [];
+            let playlistIndex = 0;
+            let playlistTotal = 0;
+            let playlistType = '';
+            let playlistName = '';
+            let playlistEndTime = null;
+            let playlistEndInterval = null;
+
+            function timeToMinutes(t) {
+                if (!t) return null;
+                const p = t.split(':');
+                return parseInt(p[0]) * 60 + parseInt(p[1]);
+            }
+
+            function currentMinutes() {
+                const n = serverNow();
+                return n.getHours() * 60 + n.getMinutes();
+            }
+
+            function stopPlaylist() {
+                if (playlistAudio) { playlistAudio.pause(); playlistAudio = null; }
+                if (playlistEndInterval) { clearInterval(playlistEndInterval); playlistEndInterval = null; }
+                fetch('{{ url('/api/playlist-finished') }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    body: JSON.stringify({ type: playlistType, name: playlistName })
+                }).catch(() => {});
+            }
+
+            window.handlePlaylistStarted = function(e) {
+                console.log('[Playlist] Started:', e.type, e.name);
+                playlistType = e.type;
+                playlistName = e.name;
+                playlistQueue = e.audio_files || [];
+                playlistIndex = 0;
+                playlistTotal = playlistQueue.length;
+                playlistEndTime = timeToMinutes(e.end_time);
+
+                if (playlistTotal === 0) return;
+
+                const statusEl = document.getElementById('playlist-status');
+                const textEl = document.getElementById('playlist-status-text');
+                const counterEl = document.getElementById('playlist-counter');
+
+                statusEl.classList.remove('hidden');
+                const label = e.type === 'opening' ? 'Pembuka' : 'Penutup';
+                textEl.textContent = label + ': ' + e.name;
+                updatePlaylistProgress();
+
+                // Cek setiap detik apakah waktu selesai sudah lewat
+                if (playlistEndInterval) clearInterval(playlistEndInterval);
+                playlistEndInterval = setInterval(function() {
+                    if (playlistEndTime !== null && currentMinutes() >= playlistEndTime) {
+                        console.log('[Playlist] End time reached, stopping');
+                        stopPlaylist();
+                    }
+                }, 1000);
+
+                playNextInQueue();
+            };
+
+            function playNextInQueue() {
+                if (playlistEndTime !== null && currentMinutes() >= playlistEndTime) {
+                    console.log('[Playlist] End time reached, stopping');
+                    stopPlaylist();
+                    return;
+                }
+
+                if (playlistIndex >= playlistTotal) {
+                    if (playlistEndTime !== null) {
+                        // Loop: ulang dari awal sampai waktu selesai tiba
+                        console.log('[Playlist] All songs done, looping...');
+                        playlistIndex = 0;
+                    } else {
+                        // Tanpa end_time: sekali putar lalu selesai
+                        if (playlistEndInterval) clearInterval(playlistEndInterval);
+                        fetch('{{ url('/api/playlist-finished') }}', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                            body: JSON.stringify({ type: playlistType, name: playlistName })
+                        }).catch(() => {});
+                        return;
+                    }
+                }
+
+                const filename = playlistQueue[playlistIndex];
+                const counterEl = document.getElementById('playlist-counter');
+                counterEl.textContent = (playlistIndex + 1) + ' / ' + playlistTotal;
+                updatePlaylistProgress();
+
+                const audio = playlistAudio || new Audio();
+                playlistAudio = audio;
+                audio.src = '/audio/' + filename;
+                audio.volume = 1;
+                audio.onended = function() {
+                    playlistIndex++;
+                    setTimeout(playNextInQueue, 500);
+                };
+                audio.play().catch(function(err) {
+                    console.warn('[Playlist] Playback error:', err);
+                    playlistIndex++;
+                    setTimeout(playNextInQueue, 500);
+                });
+            }
+
+            function updatePlaylistProgress() {
+                const pct = playlistTotal > 0 ? ((playlistIndex + 1) / playlistTotal * 100) : 0;
+                document.getElementById('playlist-progress').style.width = Math.min(pct, 100) + '%';
+            }
+
+            // Auto-start jika ada playlist aktif saat halaman dimuat
+            if (activePlaylist && activePlaylist.audio_files && activePlaylist.audio_files.length > 0) {
+                window.handlePlaylistStarted(activePlaylist);
+            }
+
+            window.handlePlaylistFinished = function(e) {
+                console.log('[Playlist] Finished:', e.type, e.name);
+                const statusEl = document.getElementById('playlist-status');
+                const textEl = document.getElementById('playlist-status-text');
+                textEl.textContent = (e.type === 'opening' ? 'Pembuka' : 'Penutup') + ' selesai';
+                document.getElementById('playlist-progress').style.width = '100%';
+
+                setTimeout(function() {
+                    statusEl.classList.add('hidden');
+                }, 5000);
+            };
+
         </script>
     </body>
 </html>

@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             SchoolDaySeeder::class,
             AudioAssetSeeder::class,
             BellScheduleSeeder::class,
+            BellPlaylistSeeder::class,
         ]);
     }
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
+use App\Models\BellPlaylist;
 use App\Models\BellSchedule;
 use App\Models\SchoolDay;
 use Carbon\Carbon;
@@ -25,6 +26,15 @@ Route::get('/', function () {
     $firstBell = $schedules->first()?->time?->format('H:i');
     $lastBell = $schedules->last()?->time?->format('H:i');
 
+    $playlists = BellPlaylist::where('is_active', true)
+        ->orderBy('type')
+        ->orderBy('order')
+        ->get()
+        ->filter(function ($p) use ($dayOfWeek) {
+            $days = $p->day_of_week ?? [];
+            return empty($days) || in_array($dayOfWeek, $days);
+        });
+
     if (!$isSchoolDay || $schedules->isEmpty()) {
         $schoolStatus = 'Libur';
     } elseif ($firstBell && $nowTime < $firstBell) {
@@ -34,6 +44,33 @@ Route::get('/', function () {
     } else {
         $schoolStatus = 'Berlangsung';
     }
+
+    $activePlaylist = null;
+    foreach ($playlists as $p) {
+        if (!$isSchoolDay || $schedules->isEmpty()) break;
+
+        $firstBell = $schedules->first()->time->format('H:i');
+        $lastBell = $schedules->last()->time->format('H:i');
+
+        $start = $p->type === 'opening'
+            ? ($p->time_range_start?->format('H:i') ?? Carbon::createFromFormat('H:i', $firstBell)->subMinutes(15)->format('H:i'))
+            : ($p->time_range_start?->format('H:i') ?? $lastBell);
+        $end = $p->type === 'opening'
+            ? ($p->time_range_end?->format('H:i') ?? $firstBell)
+            : ($p->time_range_end?->format('H:i') ?? Carbon::createFromFormat('H:i', $lastBell)->addMinutes(15)->format('H:i'));
+
+        if ($nowTime >= $start && $nowTime < $end) {
+            $activePlaylist = [
+                'type' => $p->type,
+                'name' => $p->name,
+                'audio_files' => array_column($p->audio_assets ?? [], 'filename'),
+                'end_time' => $end,
+            ];
+            break;
+        }
+    }
+
+    $serverTimestamp = now()->timestamp * 1000;
 
     $dayNames = [
         0 => 'Minggu',
@@ -47,6 +84,9 @@ Route::get('/', function () {
 
     return view('welcome', [
         'schedules' => $schedules,
+        'playlists' => $playlists,
+        'activePlaylist' => $activePlaylist,
+        'serverTimestamp' => $serverTimestamp,
         'dayName' => $dayNames[$dayOfWeek],
         'todayDate' => $today->format('d F Y'),
         'isSchoolDay' => $isSchoolDay,
@@ -85,6 +125,9 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::put('/schedules/{schedule}', [AdminController::class, 'schedulesUpdate'])->name('schedules.update');
     Route::delete('/schedules/{schedule}', [AdminController::class, 'schedulesDestroy'])->name('schedules.destroy');
     Route::post('/bell-darurat', [AdminController::class, 'bellDarurat'])->name('bell.darurat');
+
+    Route::resource('playlists', \App\Http\Controllers\Admin\BellPlaylistController::class)
+        ->except(['show']);
 });
 
 Route::get('/audio/{filename}', function (string $filename) {
@@ -103,6 +146,15 @@ Route::get('/audio/{filename}', function (string $filename) {
 
     return response()->file($path, ['Content-Type' => $mime]);
 })->where('filename', '.*');
+
+Route::post('/api/playlist-finished', function (\Illuminate\Http\Request $request) {
+    $type = $request->input('type');
+    $name = $request->input('name');
+
+    broadcast(new \App\Events\PlaylistFinished($type, $name));
+
+    return response()->json(['status' => 'ok']);
+});
 
 Route::get('/api/emergency-bell', function () {
     $emergency = \Illuminate\Support\Facades\Cache::get('emergency_bell');

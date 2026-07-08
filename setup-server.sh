@@ -21,9 +21,46 @@ echo "Server IP : $SERVER_IP"
 echo "Project   : $PROJECT_DIR"
 echo ""
 
+# ─── 1. Install dependencies sistem ────────────────────────────
+echo ">>> Update package list & install PHP 8.4 + extensions..."
+apt update -y
+apt install -y software-properties-common curl wget git unzip nginx
+apt install -y php8.4 php8.4-cli php8.4-common php8.4-mbstring php8.4-xml php8.4-curl php8.4-sqlite3 php8.4-zip php8.4-bcmath php8.4-gd php8.4-intl
+
+# Install Composer
+if ! command -v composer &>/dev/null; then
+    echo ">>> Install Composer..."
+    php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+    php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+    php -r "unlink('composer-setup.php');"
+fi
+
+# Install Node.js & NPM
+if ! command -v node &>/dev/null; then
+    echo ">>> Install Node.js 22..."
+    curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+    apt install -y nodejs
+fi
+
+# ─── 2. Clone / update project ─────────────────────────────────
+if [ ! -d "$PROJECT_DIR" ]; then
+    echo ">>> Clone project dari GitHub..."
+    git clone https://github.com/hex4coder/bell_sekolah_otomatis.git "$PROJECT_DIR"
+else
+    echo ">>> Project sudah ada, update..."
+    cd "$PROJECT_DIR"
+    git pull origin main 2>/dev/null || git pull origin dev 2>/dev/null || true
+fi
+
 cd "$PROJECT_DIR" || { echo "Project dir tidak ditemukan: $PROJECT_DIR"; exit 1; }
 
-# ─── 1. Update .env ─────────────────────────────────────────────
+# ─── 3. Setup SQLite database ──────────────────────────────────
+echo ">>> Setup SQLite database..."
+touch database/database.sqlite
+chown www-data:www-data database/database.sqlite
+chmod 664 database/database.sqlite
+
+# ─── 4. Update .env ────────────────────────────────────────────
 echo ">>> Update .env..."
 [ ! -f .env ] && cp .env.example .env
 
@@ -52,11 +89,15 @@ set_env "VITE_REVERB_HOST"  "\"${SERVER_IP}\""
 set_env "VITE_REVERB_PORT"  "\"8081\""
 set_env "VITE_REVERB_SCHEME" "\"http\""
 set_env "APP_TIMEZONE"      "Asia/Makassar"
+set_env "DB_CONNECTION"     "sqlite"
+set_env "DB_DATABASE"       "\"${PROJECT_DIR}/database/database.sqlite\""
+set_env "SESSION_DRIVER"    "file"
+set_env "CACHE_STORE"       "file"
 
 # Set APP_KEY jika belum ada
 grep -q 'APP_KEY=' .env || php artisan key:generate --force
 
-# ─── 2. Systemd Service: Reverb ─────────────────────────────────
+# ─── 5. Systemd Service: Reverb ─────────────────────────────────
 echo ">>> Buat systemd service: reverb..."
 cat > /etc/systemd/system/reverb.service << SERVICE
 [Unit]
@@ -78,7 +119,7 @@ StandardError=journal
 WantedBy=multi-user.target
 SERVICE
 
-# ─── 3. Systemd Service: Bell Scheduler ─────────────────────────
+# ─── 6. Systemd Service: Bell Scheduler ─────────────────────────
 echo ">>> Buat systemd service: bell-scheduler..."
 cat > /etc/systemd/system/bell-scheduler.service << SERVICE
 [Unit]
@@ -104,7 +145,7 @@ systemctl daemon-reload
 systemctl enable reverb bell-scheduler
 systemctl restart reverb bell-scheduler
 
-# ─── 4. Firewall ────────────────────────────────────────────────
+# ─── 7. Firewall ────────────────────────────────────────────────
 echo ">>> Buka port 8081 di firewall..."
 if command -v ufw &>/dev/null; then
     ufw allow 8081/tcp comment 'Reverb WebSocket'
@@ -115,7 +156,7 @@ else
     echo "  (tidak ada ufw/firewalld, lewati)"
 fi
 
-# ─── 5. Install dependencies & build ────────────────────────────
+# ─── 8. Install dependencies & build ────────────────────────────
 echo ">>> Install PHP dependencies..."
 su -s /bin/bash -c "composer install --no-dev --optimize-autoloader" www-data
 
@@ -123,7 +164,7 @@ echo ">>> Install & build frontend..."
 npm install --silent
 npm run build
 
-# ─── 6. Fix packages cache ─────────────────────────────────────
+# ─── 9. Fix packages cache ─────────────────────────────────────
 # Hapus service provider dari paket dev yang sudah di-uninstall
 php artisan package:discover 2>/dev/null || true
 # Jika masih gagal, bersihkan packages.php secara manual
@@ -151,15 +192,15 @@ if ! php artisan package:discover 2>/dev/null; then
 PHPEOF
 fi
 
-# ─── 7. Cache Laravel ──────────────────────────────────────────
+# ─── 10. Cache Laravel ──────────────────────────────────────────
 echo ">>> Optimasi cache..."
 su -s /bin/bash -c "php artisan config:cache && php artisan route:cache && php artisan view:cache" www-data
 
-# ─── 8. Migration ──────────────────────────────────────────────
+# ─── 11. Migration ──────────────────────────────────────────────
 echo ">>> Migrasi database..."
 su -s /bin/bash -c "php artisan migrate --force" www-data
 
-# ─── 9. Set permission ─────────────────────────────────────────
+# ─── 12. Set permission ─────────────────────────────────────────
 echo ">>> Set permission..."
 chown -R www-data:www-data storage bootstrap/cache public/build
 chmod -R 755 storage bootstrap/cache

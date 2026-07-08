@@ -20,8 +20,7 @@ class AudioAssetSeeder extends Seeder
             'akhir_pekan_2.wav' => 'Akhir Pekan 2',
             'akhir_pelajaran_1.wav' => 'Pulang',
             'akhir_pelajaran_2.wav' => 'Akhir Pelajaran 2',
-            'ayo_senam.wav' => 'Ayo Senam',
-            'ayo_senam.mp3' => 'Ayo Senam MP3',
+
             'istirahat.wav' => 'Istirahat',
             'istirahat_1.wav' => 'Istirahat 1',
             'istirahat_2.wav' => 'Istirahat 2',
@@ -41,7 +40,7 @@ class AudioAssetSeeder extends Seeder
             'jam_ke_14.wav' => 'Jam ke-14',
             'mars_smk.wav' => 'Mars SMK',
             'pelajar_pancasila.wav' => 'Pelajar Pancasila',
-            'sholawat_jibril.wav' => 'Sholawat Jibril',
+
             '1783411183_audiobelljam10.wav' => 'Lagu Indonesia Raya',
         ];
 
