@@ -83,10 +83,13 @@ class ProcessBellSchedules extends Command
 
             Cache::put($cacheKey, true, now()->endOfDay());
 
+            $endTime = $playlist->time_range_end?->format('H:i');
+
             broadcast(new PlaylistStarted(
                 $playlist->type,
                 $playlist->name,
                 $audioFiles,
+                $endTime,
             ));
 
             Log::info("Playlist started: {$playlist->name} ({$playlist->type}) at {$current}");

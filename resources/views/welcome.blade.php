@@ -347,6 +347,30 @@
             let playlistTotal = 0;
             let playlistType = '';
             let playlistName = '';
+            let playlistEndTime = null;
+            let playlistEndInterval = null;
+
+            function timeToMinutes(t) {
+                if (!t) return null;
+                const p = t.split(':');
+                return parseInt(p[0]) * 60 + parseInt(p[1]);
+            }
+
+            function currentMinutes() {
+                const n = new Date();
+                return n.getHours() * 60 + n.getMinutes();
+            }
+
+            function stopPlaylist() {
+                if (playlistAudio) { playlistAudio.pause(); playlistAudio = null; }
+                if (playlistEndInterval) { clearInterval(playlistEndInterval); playlistEndInterval = null; }
+                fetch('{{ url('/api/playlist-finished') }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    body: JSON.stringify({ type: playlistType, name: playlistName })
+                }).catch(() => {});
+            }
+
             window.handlePlaylistStarted = function(e) {
                 console.log('[Playlist] Started:', e.type, e.name);
                 playlistType = e.type;
@@ -354,6 +378,7 @@
                 playlistQueue = e.audio_files || [];
                 playlistIndex = 0;
                 playlistTotal = playlistQueue.length;
+                playlistEndTime = timeToMinutes(e.end_time);
 
                 if (playlistTotal === 0) return;
 
@@ -366,11 +391,27 @@
                 textEl.textContent = label + ': ' + e.name;
                 updatePlaylistProgress();
 
+                // Cek setiap detik apakah waktu selesai sudah lewat
+                if (playlistEndInterval) clearInterval(playlistEndInterval);
+                playlistEndInterval = setInterval(function() {
+                    if (playlistEndTime !== null && currentMinutes() >= playlistEndTime) {
+                        console.log('[Playlist] End time reached, stopping');
+                        stopPlaylist();
+                    }
+                }, 1000);
+
                 playNextInQueue();
             };
 
             function playNextInQueue() {
+                if (playlistEndTime !== null && currentMinutes() >= playlistEndTime) {
+                    console.log('[Playlist] End time reached before playing next');
+                    stopPlaylist();
+                    return;
+                }
+
                 if (playlistIndex >= playlistTotal) {
+                    if (playlistEndInterval) clearInterval(playlistEndInterval);
                     fetch('{{ url('/api/playlist-finished') }}', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },

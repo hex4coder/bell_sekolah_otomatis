@@ -15,6 +15,7 @@ class PlaylistStarted implements ShouldBroadcastNow
         public string $type,
         public string $name,
         public array $audio_files,
+        public ?string $end_time = null,
     ) {}
 
     public function broadcastOn(): array
