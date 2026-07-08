@@ -9,6 +9,7 @@ set -e
 # ─── Konfigurasi ────────────────────────────────────────────────
 SERVER_IP="${1:-$(hostname -I | awk '{print $1}')}"
 PROJECT_DIR="/var/www/bell_sekolah_otomatis"
+PHP_BIN="$(which php8.4 2>/dev/null || which php8.3 2>/dev/null || which php8.2 2>/dev/null || which php)"
 
 if [ "$EUID" -ne 0 ]; then
     echo "Jalankan sebagai root: sudo bash setup-server.sh [IP_SERVER]"
@@ -40,7 +41,7 @@ grep -q 'APP_KEY=' .env || php artisan key:generate --force
 
 # ─── 2. Systemd Service: Reverb ─────────────────────────────────
 echo ">>> Buat systemd service: reverb..."
-cat > /etc/systemd/system/reverb.service << 'SERVICE'
+cat > /etc/systemd/system/reverb.service << SERVICE
 [Unit]
 Description=Laravel Reverb WebSocket Server
 After=network.target
@@ -50,7 +51,7 @@ Type=simple
 User=www-data
 Group=www-data
 WorkingDirectory=/var/www/bell_sekolah_otomatis
-ExecStart=/usr/bin/php8.4 artisan reverb:start --host=0.0.0.0 --port=8081
+ExecStart=${PHP_BIN} artisan reverb:start --host=0.0.0.0 --port=8081
 Restart=always
 RestartSec=5
 StandardOutput=journal
@@ -62,7 +63,7 @@ SERVICE
 
 # ─── 3. Systemd Service: Bell Scheduler ─────────────────────────
 echo ">>> Buat systemd service: bell-scheduler..."
-cat > /etc/systemd/system/bell-scheduler.service << 'SERVICE'
+cat > /etc/systemd/system/bell-scheduler.service << SERVICE
 [Unit]
 Description=Laravel Schedule Worker (Bell Scheduler)
 After=network.target
@@ -72,7 +73,7 @@ Type=simple
 User=www-data
 Group=www-data
 WorkingDirectory=/var/www/bell_sekolah_otomatis
-ExecStart=/usr/bin/php8.4 artisan schedule:work
+ExecStart=${PHP_BIN} artisan schedule:work
 Restart=always
 RestartSec=5
 StandardOutput=journal
