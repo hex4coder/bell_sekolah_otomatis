@@ -27,14 +27,31 @@ cd "$PROJECT_DIR" || { echo "Project dir tidak ditemukan: $PROJECT_DIR"; exit 1;
 echo ">>> Update .env..."
 [ ! -f .env ] && cp .env.example .env
 
-sed -i "s|^APP_URL=.*|APP_URL=http://${SERVER_IP}|" .env
-sed -i 's|^BROADCAST_CONNECTION=.*|BROADCAST_CONNECTION=reverb|' .env
-sed -i "s|^REVERB_HOST=.*|REVERB_HOST=\"${SERVER_IP}\"|" .env
-sed -i 's|^REVERB_PORT=.*|REVERB_PORT=8081|' .env
-sed -i 's|^REVERB_SCHEME=.*|REVERB_SCHEME=http|' .env
-sed -i 's|^REVERB_SERVER_HOST=.*|REVERB_SERVER_HOST=0.0.0.0|' .env
-sed -i 's|^REVERB_SERVER_PORT=.*|REVERB_SERVER_PORT=8081|' .env
-sed -i "s|^VITE_REVERB_HOST=.*|VITE_REVERB_HOST=\"${SERVER_IP}\"|" .env
+set_env() {
+    local key="$1" val="$2" file=".env"
+    if grep -q "^${key}=" "$file"; then
+        sed -i "s|^${key}=.*|${key}=${val}|" "$file"
+    else
+        echo "${key}=${val}" >> "$file"
+    fi
+    echo "  ${key}=${val}"
+}
+
+set_env "APP_URL"           "http://${SERVER_IP}"
+set_env "BROADCAST_CONNECTION" "reverb"
+set_env "REVERB_APP_ID"     "593920"
+set_env "REVERB_APP_KEY"    "l6gw87idlec8pvrarutx"
+set_env "REVERB_APP_SECRET" "n9fyfpat3rvcvbjndpjq"
+set_env "REVERB_HOST"       "\"${SERVER_IP}\""
+set_env "REVERB_PORT"       "8081"
+set_env "REVERB_SCHEME"     "http"
+set_env "REVERB_SERVER_HOST" "0.0.0.0"
+set_env "REVERB_SERVER_PORT" "8081"
+set_env "VITE_REVERB_APP_KEY" "\"l6gw87idlec8pvrarutx\""
+set_env "VITE_REVERB_HOST"  "\"${SERVER_IP}\""
+set_env "VITE_REVERB_PORT"  "\"8081\""
+set_env "VITE_REVERB_SCHEME" "\"http\""
+set_env "APP_TIMEZONE"      "Asia/Makassar"
 
 # Set APP_KEY jika belum ada
 grep -q 'APP_KEY=' .env || php artisan key:generate --force
@@ -106,15 +123,43 @@ echo ">>> Install & build frontend..."
 npm install --silent
 npm run build
 
-# ─── 6. Cache Laravel ──────────────────────────────────────────
+# ─── 6. Fix packages cache ─────────────────────────────────────
+# Hapus service provider dari paket dev yang sudah di-uninstall
+php artisan package:discover 2>/dev/null || true
+# Jika masih gagal, bersihkan packages.php secara manual
+if ! php artisan package:discover 2>/dev/null; then
+    echo ">>> Perbaiki packages.php (hapus dev providers)..."
+    cat > bootstrap/cache/packages.php << 'PHPEOF'
+<?php return array (
+  "laravel/reverb" => array (
+    "providers" => array (
+      0 => "Laravel\\Reverb\\ApplicationManagerServiceProvider",
+      1 => "Laravel\\Reverb\\ReverbServiceProvider",
+    ),
+  ),
+  "laravel/tinker" => array (
+    "providers" => array (
+      0 => "Laravel\\Tinker\\TinkerServiceProvider",
+    ),
+  ),
+  "nesbot/carbon" => array (
+    "providers" => array (
+      0 => "Carbon\\Laravel\\ServiceProvider",
+    ),
+  ),
+);
+PHPEOF
+fi
+
+# ─── 7. Cache Laravel ──────────────────────────────────────────
 echo ">>> Optimasi cache..."
 su -s /bin/bash -c "php artisan config:cache && php artisan route:cache && php artisan view:cache" www-data
 
-# ─── 7. Migration ──────────────────────────────────────────────
+# ─── 8. Migration ──────────────────────────────────────────────
 echo ">>> Migrasi database..."
 su -s /bin/bash -c "php artisan migrate --force" www-data
 
-# ─── 8. Set permission ─────────────────────────────────────────
+# ─── 9. Set permission ─────────────────────────────────────────
 echo ">>> Set permission..."
 chown -R www-data:www-data storage bootstrap/cache public/build
 chmod -R 755 storage bootstrap/cache
