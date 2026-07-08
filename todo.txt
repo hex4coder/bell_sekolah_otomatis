@@ -122,3 +122,45 @@ Verifikasi
 ✅ Reverb WebSocket server running on port 8081
 ✅ Vite build sukses (7 modules, manifest.json generated)
 ✅ Semua milik file di chown ke kaco:kaco
+
+-------------------------------------------------------------------------------
+TODO: Putar audio aset otomatis sebelum bell pertama & setelah bell terakhir
+-------------------------------------------------------------------------------
+
+Deskripsi:
+- Sebelum bell pertama pada hari sekolah aktif, putar audio aset tertentu
+  (misal: lagu Indonesia Raya, atau suara "Selamat pagi").
+- Setelah bell terakhir (bell pulang), putar audio aset tertentu
+  (misal: lagu penutup, atau pengumuman akhir hari).
+- Audio aset bisa dipilih via admin panel (tambah kolom di tabel schedule
+  untuk bell_pembuka dan bell_penutup, atau entri schedule khusus).
+
+Rencana Implementasi:
+⬜ 1. Buat migration untuk tambah kolom di tabel bell_schedules:
+       - `is_pembuka` boolean (default false) — flag untuk bell pembuka
+       - `is_penutup` boolean (default false) — flag untuk bell penutup
+       Atau alternatif: buat schedule khusus dengan waktu dinamis
+       (sebelum bell pertama / setelah bell terakhir).
+
+⬜ 2. Update Scheduler (ProcessBellSchedules):
+       - Sebelum menjalankan schedule regular, cek apakah ada bell
+         pembuka yang harus dimainkan (waktu = bell_pertama - offset).
+       - Setelah semua schedule terlewati, putar bell penutup.
+       - Offset bisa dikonfigurasi (misal: 5 menit sebelum bell pertama).
+
+⬜ 3. Update Admin Panel → Form jadwal:
+       - Checkbox / toggle untuk menandai jadwal sebagai pembuka/penutup.
+       - Atau form khusus untuk upload audio pembuka & penutup.
+
+⬜ 4. Update Landing Page:
+       - Tampilkan indikasi bell pembuka/penutup di jadwal.
+       - Echo listener tetap sama (BellPlayed), tidak perlu perubahan.
+
+⬜ 5. Update route/channels jika diperlukan.
+
+Catatan:
+- Approach paling sederhana: buat 2 entri schedule khusus di DB dengan
+  flag is_pembuka / is_penutup. Scheduler akan mengecek dan memutarnya
+  bersamaan dengan schedule regular.
+- Atau approach lebih kompleks: buat tabel terpisah (bell_opening, bell_closing)
+  dengan pengaturan waktu offset.
