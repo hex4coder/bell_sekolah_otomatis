@@ -2,6 +2,7 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <h2 class="font-semibold text-xl leading-tight text-gray-900 dark:text-white">Manajemen Jadwal Bell</h2>
+            @if (Auth::user()->isAdmin())
             <div class="flex items-center gap-2">
                 <button onclick="openCopy()" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg transition">
                     Copy Jadwal
@@ -22,34 +23,13 @@
                     + Tambah Jadwal
                 </button>
             </div>
+            @endif
         </div>
     </x-slot>
 
     <div class="py-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {{-- Admin Navigation --}}
-            <div class="mb-6 flex items-center gap-2 text-sm">
-                <a href="{{ route('admin.dashboard') }}"
-                   class="px-4 py-2 rounded-lg font-medium {{ request()->routeIs('admin.dashboard') ? 'bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
-                    Dashboard
-                </a>
-                <a href="{{ route('admin.audio.index') }}"
-                   class="px-4 py-2 rounded-lg font-medium {{ request()->routeIs('admin.audio.*') ? 'bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
-                    Manajemen Audio
-                </a>
-                <a href="{{ route('admin.schedules') }}"
-                   class="px-4 py-2 rounded-lg font-medium {{ request()->routeIs('admin.schedules*') ? 'bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
-                    Jadwal Bell
-                </a>
-                <a href="{{ route('admin.school-days') }}"
-                   class="px-4 py-2 rounded-lg font-medium {{ request()->routeIs('admin.school-days') ? 'bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
-                    Hari Sekolah
-                </a>
-                <a href="{{ route('admin.playlists.index') }}"
-                   class="px-4 py-2 rounded-lg font-medium {{ request()->routeIs('admin.playlists*') ? 'bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
-                    Playlist
-                </a>
-            </div>
+            @include('admin.partials.nav')
 
             <div id="flash-success" data-message="{{ session('success') }}" class="hidden"></div>
 
@@ -60,12 +40,14 @@
                             <h3 class="font-semibold text-gray-900 dark:text-white">{{ $day->name }}</h3>
                             <div class="flex items-center gap-3">
                                 <span class="text-xs text-gray-500 dark:text-gray-400">{{ $day->schedules->count() }} jadwal</span>
+                                @if (Auth::user()->isAdmin())
                                 <form action="{{ route('admin.schedules.destroyDay', $day->day_of_week) }}" method="POST" class="inline destroy-day-form">
                                     @csrf @method('DELETE')
                                     <button type="button" class="text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium btn-destroy-day" data-day="{{ $day->name }}">
                                         Hapus Semua
                                     </button>
                                 </form>
+                                @endif
                             </div>
                         </div>
 
@@ -78,7 +60,9 @@
                                             <th class="px-4 py-2 text-left font-medium text-gray-500 dark:text-gray-400">Waktu</th>
                                             <th class="px-4 py-2 text-left font-medium text-gray-500 dark:text-gray-400">File Audio</th>
                                             <th class="px-4 py-2 text-center font-medium text-gray-500 dark:text-gray-400">Status</th>
+                                            @if (Auth::user()->isAdmin())
                                             <th class="px-4 py-2 text-center font-medium text-gray-500 dark:text-gray-400">Aksi</th>
+                                            @endif
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -92,6 +76,7 @@
                                                         {{ $schedule->is_active ? 'Aktif' : 'Nonaktif' }}
                                                     </span>
                                                 </td>
+                                                @if (Auth::user()->isAdmin())
                                                 <td class="px-4 py-2.5 text-center">
                                                     <div class="flex items-center justify-center gap-1">
                                                         @if ($schedule->audio_file)
@@ -110,6 +95,7 @@
                                                         </form>
                                                     </div>
                                                 </td>
+                                                @endif
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -126,6 +112,7 @@
         </div>
     </div>
 
+    @if (Auth::user()->isAdmin())
     {{-- Copy Modal --}}
     <div id="copyModal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
@@ -205,12 +192,12 @@
 
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">File Audio</label>
-                                                    <select name="audio_file" id="field_audio_file" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
-                                                        <option value="">— Tidak ada audio —</option>
-                                                        @foreach ($audioFiles as $af)
-                                                            <option value="{{ $af->filename }}">{{ $af->name }}</option>
-                                                        @endforeach
-                                                    </select>
+                    <select name="audio_file" id="field_audio_file" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                        <option value="">— Tidak ada audio —</option>
+                        @foreach ($audioFiles as $af)
+                            <option value="{{ $af->filename }}">{{ $af->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <div class="mb-6">
@@ -227,6 +214,7 @@
             </form>
         </div>
     </div>
+    @endif
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
@@ -235,6 +223,7 @@
             if (msg) Swal.fire({ icon: 'success', title: 'Berhasil', text: msg, timer: 3000, showConfirmButton: false });
         })();
 
+        @if (Auth::user()->isAdmin())
         document.getElementById('copy_source_day')?.addEventListener('change', updateCopyTargets);
         document.getElementById('field_all_days')?.addEventListener('change', function () {
             document.getElementById('field_day_of_week').disabled = this.checked;
@@ -328,7 +317,6 @@
 
         function openCopy() {
             document.getElementById('copyModal').classList.remove('hidden');
-            // Uncheck target checkboxes that match source
             updateCopyTargets();
         }
 
@@ -353,5 +341,6 @@
         function playAudio(url) {
             new Audio(url).play().catch(() => {});
         }
+        @endif
     </script>
 </x-app-layout>

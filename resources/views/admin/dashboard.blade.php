@@ -5,31 +5,10 @@
 
     <div class="py-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {{-- Admin Navigation --}}
-            <div class="mb-6 flex items-center gap-2 text-sm">
-                <a href="{{ route('admin.dashboard') }}"
-                   class="px-4 py-2 rounded-lg font-medium {{ request()->routeIs('admin.dashboard') ? 'bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
-                    Dashboard
-                </a>
-                <a href="{{ route('admin.audio.index') }}"
-                   class="px-4 py-2 rounded-lg font-medium {{ request()->routeIs('admin.audio.*') ? 'bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
-                    Manajemen Audio
-                </a>
-                <a href="{{ route('admin.schedules') }}"
-                   class="px-4 py-2 rounded-lg font-medium {{ request()->routeIs('admin.schedules*') ? 'bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
-                    Jadwal Bell
-                </a>
-                <a href="{{ route('admin.school-days') }}"
-                   class="px-4 py-2 rounded-lg font-medium {{ request()->routeIs('admin.school-days') ? 'bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
-                    Hari Sekolah
-                </a>
-                <a href="{{ route('admin.playlists.index') }}"
-                   class="px-4 py-2 rounded-lg font-medium {{ request()->routeIs('admin.playlists*') ? 'bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
-                    Playlist
-                </a>
-            </div>
+            @include('admin.partials.nav')
 
-            {{-- Stats Grid --}}
+            @if (Auth::user()->isAdmin())
+            {{-- Stats Grid — Admin Only --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 <a href="{{ route('admin.audio.index') }}" class="block bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700 transition">
                     <div class="flex items-center gap-3">
@@ -88,7 +67,7 @@
                 </div>
             </div>
 
-            {{-- Quick Links --}}
+            {{-- Quick Links — Admin Only --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                 <a href="{{ route('admin.audio.index') }}" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700 transition group">
                     <div class="flex items-center gap-4">
@@ -140,8 +119,9 @@
                     </div>
                 </a>
             </div>
+            @endif
 
-            {{-- Emergency Bell --}}
+            {{-- Emergency Bell — Admin & Staff --}}
             <div class="bg-red-50 dark:bg-red-900/10 rounded-xl shadow-sm border border-red-200 dark:border-red-800/30 p-6 mb-8">
                 <div class="flex items-center justify-between flex-wrap gap-4">
                     <div>
@@ -162,7 +142,8 @@
                 </div>
             </div>
 
-            {{-- Storage Info --}}
+            @if (Auth::user()->isAdmin())
+            {{-- Storage Info — Admin Only --}}
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                 <h3 class="font-semibold text-lg mb-4 text-gray-900 dark:text-white">Informasi Penyimpanan Audio</h3>
                 <div class="flex items-center gap-3 text-sm">
@@ -170,6 +151,7 @@
                     <span class="font-medium text-gray-900 dark:text-white">{{ $audioSizeFormatted }}</span>
                 </div>
             </div>
+            @endif
         </div>
     </div>
 

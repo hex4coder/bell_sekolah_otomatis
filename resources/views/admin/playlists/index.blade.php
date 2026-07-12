@@ -5,29 +5,7 @@
 
     <div class="py-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {{-- Admin Navigation --}}
-            <div class="mb-6 flex items-center gap-2 text-sm">
-                <a href="{{ route('admin.dashboard') }}"
-                   class="px-4 py-2 rounded-lg font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
-                    Dashboard
-                </a>
-                <a href="{{ route('admin.audio.index') }}"
-                   class="px-4 py-2 rounded-lg font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
-                    Manajemen Audio
-                </a>
-                <a href="{{ route('admin.schedules') }}"
-                   class="px-4 py-2 rounded-lg font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
-                    Jadwal Bell
-                </a>
-                <a href="{{ route('admin.school-days') }}"
-                   class="px-4 py-2 rounded-lg font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
-                    Hari Sekolah
-                </a>
-                <a href="{{ route('admin.playlists.index') }}"
-                   class="px-4 py-2 rounded-lg font-medium bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white">
-                    Playlist
-                </a>
-            </div>
+            @include('admin.partials.nav')
 
             @if (session('success'))
                 <div class="mb-6 p-4 rounded-lg bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300">
@@ -38,15 +16,20 @@
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
                     <h3 class="font-semibold text-gray-900 dark:text-white">Daftar Playlist</h3>
+                    @if (Auth::user()->isAdmin())
                     <a href="{{ route('admin.playlists.create') }}"
                        class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition">
                         + Tambah Playlist
                     </a>
+                    @endif
                 </div>
 
                 @if ($playlists->isEmpty())
                     <div class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
-                        Belum ada playlist. <a href="{{ route('admin.playlists.create') }}" class="text-blue-500 hover:underline">Buat baru</a>.
+                        Belum ada playlist.
+                        @if (Auth::user()->isAdmin())
+                            <a href="{{ route('admin.playlists.create') }}" class="text-blue-500 hover:underline">Buat baru</a>.
+                        @endif
                     </div>
                 @else
                     <div class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -70,6 +53,7 @@
                                         @endif
                                     </div>
                                 </div>
+                                @if (Auth::user()->isAdmin())
                                 <div class="flex items-center gap-2 shrink-0">
                                     <a href="{{ route('admin.playlists.edit', $p) }}"
                                        class="px-3 py-1.5 rounded-lg text-sm bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-900/50 transition">
@@ -83,6 +67,7 @@
                                         </button>
                                     </form>
                                 </div>
+                                @endif
                             </div>
                         @endforeach
                     </div>

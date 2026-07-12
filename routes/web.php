@@ -108,15 +108,30 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+/*
+|--------------------------------------------------------------------------
+| Staff + Admin (read-only + bell darurat + dashboard)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified', 'staff'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::post('/bell-darurat', [AdminController::class, 'bellDarurat'])->name('bell.darurat');
+    Route::get('/schedules', [AdminController::class, 'schedules'])->name('schedules');
+    Route::get('/school-days', [AdminController::class, 'schoolDays'])->name('school-days');
+    Route::get('/playlists', [\App\Http\Controllers\Admin\BellPlaylistController::class, 'index'])->name('playlists.index');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Admin only (full CRUD)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/audio', [AdminController::class, 'audioIndex'])->name('audio.index');
     Route::post('/audio/upload', [AdminController::class, 'audioUpload'])->name('audio.upload');
     Route::delete('/audio/{filename}', [AdminController::class, 'audioDelete'])->name('audio.delete');
     Route::put('/audio/{filename}/edit', [AdminController::class, 'audioEdit'])->name('audio.edit');
-    Route::get('/school-days', [AdminController::class, 'schoolDays'])->name('school-days');
     Route::put('/school-days', [AdminController::class, 'schoolDaysUpdate'])->name('school-days.update');
-    Route::get('/schedules', [AdminController::class, 'schedules'])->name('schedules');
     Route::post('/schedules', [AdminController::class, 'schedulesStore'])->name('schedules.store');
     Route::post('/schedules/copy', [AdminController::class, 'schedulesCopy'])->name('schedules.copy');
     Route::post('/schedules/generate-default', [AdminController::class, 'schedulesGenerateDefault'])->name('schedules.generate-default');
@@ -124,10 +139,14 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::delete('/schedules/day/{day}', [AdminController::class, 'schedulesDestroyDay'])->name('schedules.destroyDay');
     Route::put('/schedules/{schedule}', [AdminController::class, 'schedulesUpdate'])->name('schedules.update');
     Route::delete('/schedules/{schedule}', [AdminController::class, 'schedulesDestroy'])->name('schedules.destroy');
-    Route::post('/bell-darurat', [AdminController::class, 'bellDarurat'])->name('bell.darurat');
 
     Route::resource('playlists', \App\Http\Controllers\Admin\BellPlaylistController::class)
-        ->except(['show']);
+        ->except(['show', 'index']);
+
+    Route::get('/users', [\App\Http\Controllers\Admin\UserManagementController::class, 'index'])->name('users.index');
+    Route::post('/users', [\App\Http\Controllers\Admin\UserManagementController::class, 'store'])->name('users.store');
+    Route::put('/users/{user}/role', [\App\Http\Controllers\Admin\UserManagementController::class, 'updateRole'])->name('users.update-role');
+    Route::delete('/users/{user}', [\App\Http\Controllers\Admin\UserManagementController::class, 'destroy'])->name('users.destroy');
 });
 
 Route::get('/audio/{filename}', function (string $filename) {

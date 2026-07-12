@@ -127,7 +127,7 @@ Verifikasi
 TODO: Fitur Pembuka & Penutup (Playlist Otomatis sebelum/sesudah jadwal)
 -------------------------------------------------------------------------------
 Branch: dev (existing)
-Status: ⬜ Belum dimulai
+Status: ✅ Selesai
 
 Deskripsi:
 - Putar rangkaian audio aset (playlist) secara otomatis **sebelum bell pertama**
@@ -142,7 +142,7 @@ Deskripsi:
 Phase 1: Database — Tabel bell_playlists
 -------------------------------------------------------------------------------
 
-⬜ 1.1 Buat migration: create_bell_playlists_table
+✅ 1.1 Buat migration: create_bell_playlists_table
        Kolom:
        - id (bigIncrements)
        - type (enum: 'opening', 'closing')
@@ -163,7 +163,7 @@ Phase 1: Database — Tabel bell_playlists
        - order (integer) — urutan jika multiple playlist
        - created_at, updated_at
 
-⬜ 1.2 Buat model BellPlaylist
+✅ 1.2 Buat model BellPlaylist
        - fillable: type, name, audio_assets, time_range_start,
          time_range_end, is_active, day_of_week, action_after,
          action_after_delay, order
@@ -171,7 +171,7 @@ Phase 1: Database — Tabel bell_playlists
          time_range_start (datetime:H:i), time_range_end (datetime:H:i),
          is_active (boolean)
 
-⬜ 1.3 Buat seeder default (contoh):
+✅ 1.3 Buat seeder default (contoh):
        - Playlist pembuka: Lagu Indonesia Raya (07:00)
        - Playlist penutup: Lagu penutup + shutdown (16:00)
 
@@ -179,17 +179,17 @@ Phase 1: Database — Tabel bell_playlists
 Phase 2: Backend — Event & Broadcasting
 -------------------------------------------------------------------------------
 
-⬜ 2.1 Buat Event: PlaylistStarted
+✅ 2.1 Buat Event: PlaylistStarted
        - broadcast on channel 'bell'
        - payload: type ('opening'|'closing'), name, index,
          total_items, audio_file
 
-⬜ 2.2 Buat Event: PlaylistFinished
+✅ 2.2 Buat Event: PlaylistFinished
        - broadcast on channel 'bell'
        - payload: type, name, action (string|null),
          action_delay (int)
 
-⬜ 2.3 Buat Event: ShutdownRequested
+✅ 2.3 Buat Event: ShutdownRequested
        - broadcast on channel 'bell'
        - payload: action ('shutdown'|'restart'|'custom'),
          command (string|null), delay (int)
@@ -201,26 +201,26 @@ Phase 2: Backend — Event & Broadcasting
 Phase 3: Backend — Scheduler (ProcessBellSchedules)
 -------------------------------------------------------------------------------
 
-⬜ 3.1 Setiap menit, scheduler cek:
+✅ 3.1 Setiap menit, scheduler cek:
        - Apakah sudah waktunya **pembuka**?
          (time_range_start ≤ now ≤ time_range_start + offset_playlist)
        - Apakah sudah waktunya **penutup**?
          (time_range_start ≤ now ≤ time_range_start + offset_playlist)
 
-⬜ 3.2 Logic pembuka:
+✅ 3.2 Logic pembuka:
        - Cari playlist type='opening' yang aktif dan hari ini cocok
        - Cek apakah sudah pernah diputar hari ini (cache key)
        - Jika belum, broadcast PlaylistStarted untuk item pertama
        - Setiap menit, broadcast item berikutnya
        - Setelah semua item, tandai selesai
 
-⬜ 3.3 Logic penutup:
+✅ 3.3 Logic penutup:
        - Sama seperti pembuka, tapi setelah semua item selesai
        - Broadcast PlaylistFinished dengan action_after
        - Jika action_after_delay > 0, tunggu
        - Broadcast ShutdownRequested
 
-⬜ 3.4 Grace period:
+✅ 3.4 Grace period:
        - Jika playlist terlewat karena baru dibuat, grace period
          sama seperti schedule biasa (2 menit)
 
@@ -228,7 +228,7 @@ Phase 3: Backend — Scheduler (ProcessBellSchedules)
 Phase 4: Admin Panel — CRUD BellPlaylist
 -------------------------------------------------------------------------------
 
-⬜ 4.1 Buat controller BellPlaylistController (atau extends AdminController)
+✅ 4.1 Buat controller BellPlaylistController (atau extends AdminController)
        - index() — daftar semua playlist
        - create() — form tambah
        - store() — simpan
@@ -236,10 +236,10 @@ Phase 4: Admin Panel — CRUD BellPlaylist
        - update(BellPlaylist) — update
        - destroy(BellPlaylist) — hapus
 
-⬜ 4.2 Buat view admin/playlists/index.blade.php
+✅ 4.2 Buat view admin/playlists/index.blade.php
        - Tabel: type, nama, jumlah audio, waktu aktif, status, aksi
 
-⬜ 4.3 Buat view admin/playlists/form.blade.php
+✅ 4.3 Buat view admin/playlists/form.blade.php
        - Field: type (select: opening/closing), name, is_active
        - Audio assets picker: pilih multiple audio dari daftar
          (checkbox + urutkan dengan drag atau input order)
@@ -249,7 +249,7 @@ Phase 4: Admin Panel — CRUD BellPlaylist
          restart, custom) + input custom command
        - Action delay: input number (detik)
 
-⬜ 4.4 Tambah route admin:
+✅ 4.4 Tambah route admin:
        - GET  /admin/playlists — index
        - GET  /admin/playlists/create — create form
        - POST /admin/playlists — store
@@ -257,13 +257,13 @@ Phase 4: Admin Panel — CRUD BellPlaylist
        - PUT  /admin/playlists/{id} — update
        - DELETE /admin/playlists/{id} — delete
 
-⬜ 4.5 Tambah navigasi admin sidebar ke menu Playlists
+✅ 4.5 Tambah navigasi admin sidebar ke menu Playlists
 
 -------------------------------------------------------------------------------
 Phase 5: Frontend — Landing Page Listener
 -------------------------------------------------------------------------------
 
-⬜ 5.1 Tambah listener di bootstrap.js:
+✅ 5.1 Tambah listener di bootstrap.js:
        Echo.channel('bell')
            .listen('PlaylistStarted', (e) => {
                // Putar audio
@@ -287,7 +287,7 @@ Phase 5: Frontend — Landing Page Listener
                }
            })
 
-⬜ 5.2 UI overlay di welcome.blade.php:
+✅ 5.2 UI overlay di welcome.blade.php:
        - Overlay kecil di pojok yang menunjukkan status playlist
          (opsional, bisa pakai SweetAlert atau toast)
 
@@ -295,7 +295,7 @@ Phase 5: Frontend — Landing Page Listener
 Phase 6: Action Execution — Endpoint Shutdown (Client-side Agent)
 -------------------------------------------------------------------------------
 
-⬜ 6.1 Untuk action shutdown/restart di client PC:
+✅ 6.1 Untuk action shutdown/restart di client PC:
        - Diperlukan agent/client-side yang bisa menjalankan perintah
          sistem. Opsi:
          a) Browser tidak bisa shutdown langsung (sandboxed).
@@ -306,7 +306,7 @@ Phase 6: Action Execution — Endpoint Shutdown (Client-side Agent)
          c) Fallback: browser close window saja (+ instruksi manual
             untuk shutdown).
 
-⬜ 6.2 Implementasi paling sederhana:
+✅ 6.2 Implementasi paling sederhana:
        - Server menyediakan endpoint GET /api/shutdown
        - Client agent (script bash/python) polling endpoint ini
          setiap N detik
@@ -314,7 +314,7 @@ Phase 6: Action Execution — Endpoint Shutdown (Client-side Agent)
        - Atau: manfaatkan WebSocket yang sudah ada (ShutdownRequested
          event → kirim ke agent)
 
-⬜ 6.3 Agent script (opsional):
+✅ 6.3 Agent script (opsional):
        - Python script kecil yang WebSocket client ke Reverb
          (pakai websockets library)
        - Atau bash script polling HTTP endpoint
@@ -324,5 +324,185 @@ Catatan:
 - Tabel bell_playlists terpisah dari bell_schedules agar lebih fleksibel
 - Audio assets diambil dari tabel audio_assets yang sudah ada
 - Action untuk penutup bisa dikembangkan bertahap (mulai dari
-  notifikasi browser dulu, baru agent) 
+  notifikasi browser dulu, baru agent)
 - Grace period 2 menit seperti scheduler reguler
+
+================================================================================
+TODO: Multi-Role User — Superuser (Admin) & Staf
+================================================================================
+Branch: dev
+Status: ✅ Selesai
+
+Deskripsi:
+- Ganti kolom `is_admin` (boolean) dengan `role` (enum: 'admin', 'staff').
+- Admin (superuser): akses penuh ke semua fitur panel admin.
+- Staf: akses terbatas — hanya bisa melihat daftar jadwal, hari aktif,
+  dan mengakses dashboard admin untuk menekan tombol bell darurat.
+- Registrasi publik ditutup; user hanya dibuat oleh admin.
+
+Hak Akses per Role:
+┌─────────────────────────────┬───────┬───────┐
+│ Fitur                       │ Admin │ Staf  │
+├─────────────────────────────┼───────┼───────┤
+│ Dashboard admin             │   ✅  │   ✅  │
+│ Bell Darurat                │   ✅  │   ✅  │
+│ Lihat Jadwal Bell (read)    │   ✅  │   ✅  │
+│ Lihat Hari Sekolah (read)   │   ✅  │   ✅  │
+│ Lihat Playlist (read)       │   ✅  │   ❌  │
+│ Manajemen Audio (CRUD)      │   ✅  │   ❌  │
+│ Kelola Jadwal Bell (CRUD)   │   ✅  │   ❌  │
+│ Copy/Generate/Reset Jadwal  │   ✅  │   ❌  │
+│ Kelola Hari Sekolah (edit)  │   ✅  │   ❌  │
+│ Kelola Playlist (CRUD)      │   ✅  │   ❌  │
+│ Manajemen User              │   ✅  │   ❌  │
+└─────────────────────────────┴───────┴───────┘
+
+================================================================================
+Phase 1: Database — Ganti is_admin dengan role
+================================================================================
+
+✅ 1.1 Buat migration: replace_is_admin_with_role_in_users_table
+       - Tambah kolom `role` enum('admin','staff') default 'staff'
+         setelah password
+       - Migrasi data: WHERE is_admin = 1 → role = 'admin'
+       - Drop kolom `is_admin`
+
+✅ 1.2 Update User model (app/Models/User.php):
+       - Tambahkan atribut `role` ke #[Fillable] (atau $fillable manual)
+       - Tambah cast: 'role' => 'string'
+       - Tambah method helper:
+         * isAdmin(): bool → $this->role === 'admin'
+         * isStaff(): bool → $this->role === 'staff'
+         * canManage(): bool → $this->isAdmin() (akses CRUD)
+
+================================================================================
+Phase 2: Backend — Middleware
+================================================================================
+
+✅ 2.1 Update AdminMiddleware (app/Http/Middleware/AdminMiddleware.php):
+       - Ganti pengecekan: dari $user->is_admin → $user->isAdmin()
+       - Ini hanya untuk admin (superuser) saja
+
+✅ 2.2 Buat StaffMiddleware (app/Http/Middleware/StaffMiddleware.php):
+       - Cek: $user->isAdmin() || $user->isStaff()
+       - Digunakan untuk route yang bisa diakses admin DAN staf
+
+✅ 2.3 Register middleware di bootstrap/app.php:
+       - Tambah alias: 'staff' => StaffMiddleware::class
+
+================================================================================
+Phase 3: Routes — Pisahkan route admin-only vs staff+admin
+================================================================================
+
+✅ 3.1 Update routes/web.php — split prefix 'admin' menjadi 2 group:
+
+       Group 1: Staff + Admin (middleware: ['auth', 'verified', 'staff'])
+         - GET  /admin/dashboard          → dashboard (dengan tombol darurat)
+         - POST /admin/bell-darurat       → bellDarurat
+         - GET  /admin/schedules          → schedules (read-only view)
+         - GET  /admin/school-days        → schoolDays (read-only view)
+         - GET  /admin/playlists          → playlistsIndex (read-only view)
+
+       Group 2: Admin only (middleware: ['auth', 'verified', 'admin'])
+         - Semua route CRUD yang sudah ada selain yang di atas:
+         * Audio: upload, delete, edit
+         * Schedules: store, update, destroy, copy, reset, destroyDay, generateDefault
+         * School-days: update
+         * Playlists: create, store, edit, update, destroy
+         * (Tidak ada route manage-user untuk sekarang, bisa ditambah nanti)
+
+✅ 3.2 Route /dashboard redirect ke /admin/dashboard tetap berlaku
+       untuk semua role yang punya akses admin/staf.
+
+================================================================================
+Phase 4: Views — Navigasi & Tampilan Berbeda per Role
+================================================================================
+
+✅ 4.1 Update navigation.blade.php:
+       - Ganti semua `Auth::user()?->is_admin` → Auth::user()?->canManage()
+         atau Auth::user()?->isAdmin() tergantung konteks:
+         * Link "Admin Panel" di nav: tampilkan jika isAdmin() ATAU isStaff()
+         * Dropdown "Admin Panel": tampilkan jika isAdmin() ATAU isStaff()
+
+✅ 4.2 Update admin navigation bar (dashboard.blade.php, schedules/index,
+       school-days.blade.php, playlists/index):
+       - Buat partial Blade: resources/views/admin/partials/nav.blade.php
+       - Logic: jika staff, tampilkan link:
+         * Dashboard, Jadwal Bell, Hari Sekolah (read-only)
+       - Logic: jika admin, tampilkan semua link (termasuk Audio, Playlist)
+
+✅ 4.3 Update admin/dashboard.blade.php:
+       - Admin: tampilkan semua stats (total schedules, audio, users)
+       - Staf: tampilkan stats terbatas + tombol Bell Darurat
+       - Sembunyikan link "Manajemen Audio", "Playlist" untuk staf
+
+✅ 4.4 Update admin/schedules/index.blade.php untuk staf:
+       - Jika staff: tampilan read-only, sembunyikan:
+         * Tombol "Tambah Jadwal", "Copy Jadwal", "Generate Default", "Reset Semua"
+         * Tombol Edit & Delete di setiap baris
+         * Form modals (create/edit/copy)
+       - Jika admin: semua tombol dan aksi tetap ada
+
+✅ 4.5 Update admin/school-days.blade.php untuk staf:
+       - Jika staff: tampilan read-only, sembunyikan tombol "Edit"
+         dan edit modal
+       - Jika admin: tetap bisa edit
+
+✅ 4.6 Update admin/playlists/index.blade.php untuk staf:
+       - Jika staff: sembunyikan tombol "Tambah Playlist", "Edit", "Hapus"
+       - Catatan: route playlists untuk staf hanya GET index (read-only)
+
+================================================================================
+Phase 5: Seeder & Data
+================================================================================
+
+✅ 5.1 Update AdminSeeder (database/seeders/AdminSeeder.php):
+       - Tambah user admin dengan role = 'admin'
+       - Tambah contoh user staf dengan role = 'staff'
+       - Gunakan env atau hardcode untuk akun default
+
+✅ 5.2 Disable registrasi publik:
+       - Hapus atau comment route register di routes/auth.php
+       - Atau buat middleware yang block register route
+       - Admin bisa buat user baru dari panel (opsional, phase 6)
+
+================================================================================
+Phase 6: User Management (Admin Only) — Optional
+================================================================================
+
+✅ 6.1 Buat UserManagementController:
+       - index() — daftar semua user dengan role
+       - store() — buat user baru (admin input name, email, password, role)
+       - updateRole(User) — ubah role user
+       - destroy(User) — hapus user (kecuali diri sendiri)
+
+✅ 6.2 Tambah route:
+       - GET    /admin/users        → index
+       - POST   /admin/users        → store
+       - PUT    /admin/users/{user} → updateRole
+       - DELETE /admin/users/{user} → destroy
+
+✅ 6.3 Buat view admin/users/index.blade.php:
+       - Tabel: nama, email, role (badge), aksi (ubah role, hapus)
+       - Form tambah user: name, email, password, role (select)
+
+✅ 6.4 Tambah link "Manajemen User" ke admin navigation (admin only)
+
+================================================================================
+Verifikasi
+================================================================================
+
+✅ Login sebagai admin → bisa akses semua menu admin + CRUD
+✅ Login sebagai staf → hanya lihat dashboard, jadwal, hari sekolah, bell darurat
+✅ Staf tidak bisa akses route CRUD (dapat 403)
+✅ Navigasi admin berbeda antara admin dan staf
+✅ Registrasi publik sudah tidak bisa diakses
+✅ User baru bisa dibuat dari panel admin
+
+================================================================================
+Catatan:
+- Kolom `role` enum('admin','staff') — user biasa (registrasi lama)
+  otomatis jadi 'staff' atau bisa diabaikan (tidak bisa login admin)
+- Rollback migration: tambah ulang is_admin, migrate role→is_admin
+- StaffMiddleware = admin + staff (double check: isLoggedIn && (admin || staff))
+- route groups terpisah agar jelas mana yang CRUD (admin only) vs read-only

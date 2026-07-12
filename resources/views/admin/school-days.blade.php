@@ -7,35 +7,19 @@
 
     <div class="py-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {{-- Admin Navigation --}}
-            <div class="mb-6 flex items-center gap-2 text-sm">
-                <a href="{{ route('admin.dashboard') }}"
-                   class="px-4 py-2 rounded-lg font-medium {{ request()->routeIs('admin.dashboard') ? 'bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
-                    Dashboard
-                </a>
-                <a href="{{ route('admin.audio.index') }}"
-                   class="px-4 py-2 rounded-lg font-medium {{ request()->routeIs('admin.audio.*') ? 'bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
-                    Manajemen Audio
-                </a>
-                <a href="{{ route('admin.schedules') }}"
-                   class="px-4 py-2 rounded-lg font-medium {{ request()->routeIs('admin.schedules*') ? 'bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
-                    Jadwal Bell
-                </a>
-                <a href="{{ route('admin.school-days') }}"
-                   class="px-4 py-2 rounded-lg font-medium {{ request()->routeIs('admin.school-days') ? 'bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
-                    Hari Sekolah
-                </a>
-                <a href="{{ route('admin.playlists.index') }}"
-                   class="px-4 py-2 rounded-lg font-medium {{ request()->routeIs('admin.playlists*') ? 'bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
-                    Playlist
-                </a>
-            </div>
+            @include('admin.partials.nav')
 
             <div id="flash-success" data-message="{{ session('success') }}" class="hidden"></div>
 
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Atur hari apa saja yang merupakan hari sekolah aktif. Klik tombol Edit untuk mengubah status hari.</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        @if (Auth::user()->isAdmin())
+                            Atur hari apa saja yang merupakan hari sekolah aktif. Klik tombol Edit untuk mengubah status hari.
+                        @else
+                            Daftar hari sekolah aktif. Hubungi admin untuk mengubah pengaturan.
+                        @endif
+                    </p>
                 </div>
 
                 <div class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -54,6 +38,7 @@
                                 <span class="px-2.5 py-0.5 rounded-full text-xs font-medium {{ $day->is_active ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400' }}">
                                     {{ $day->is_active ? 'Aktif' : 'Nonaktif' }}
                                 </span>
+                                @if (Auth::user()->isAdmin())
                                 <button onclick="openEdit({{ $day->id }}, {{ $day->day_of_week }}, '{{ $day->name }}', {{ $day->is_active ? 'true' : 'false' }})"
                                         class="px-3 py-1.5 text-xs font-medium rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition flex items-center gap-1.5">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,6 +46,7 @@
                                     </svg>
                                     Edit
                                 </button>
+                                @endif
                             </div>
                         </div>
                     @endforeach
@@ -69,6 +55,7 @@
         </div>
     </div>
 
+    @if (Auth::user()->isAdmin())
     {{-- Edit Modal --}}
     <div id="editModal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-sm w-full p-6">
@@ -110,6 +97,7 @@
             </form>
         </div>
     </div>
+    @endif
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
@@ -118,6 +106,7 @@
             if (msg) Swal.fire({ icon: 'success', title: 'Berhasil', text: msg, timer: 3000, showConfirmButton: false });
         })();
 
+        @if (Auth::user()->isAdmin())
         let editActive = false;
 
         function updateStatusUI() {
@@ -157,5 +146,6 @@
             updateStatusUI();
             document.getElementById('editModal').classList.remove('hidden');
         }
+        @endif
     </script>
 </x-app-layout>
