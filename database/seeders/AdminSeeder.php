@@ -14,9 +14,17 @@ class AdminSeeder extends Seeder
             'name' => 'Administrator',
             'email' => 'admin@sekolah.com',
             'password' => Hash::make('admin123'),
-            'is_admin' => true,
+            'role' => 'admin',
         ]);
 
-        $this->command->info('Admin account created: admin@sekolah.com / admin123');
+        User::create([
+            'name' => 'Staf Tata Usaha',
+            'email' => 'staf@sekolah.com',
+            'password' => Hash::make('staf123'),
+            'role' => 'staff',
+        ]);
+
+        $this->command->info('Admin account: admin@sekolah.com / admin123');
+        $this->command->info('Staff account:  staf@sekolah.com / staf123');
     }
 }

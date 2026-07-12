@@ -11,7 +11,7 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    @if (Auth::user()?->is_admin)
+                    @if (Auth::user()?->isAdmin() || Auth::user()?->isStaff())
                         <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
                             {{ __('Admin') }}
                         </x-nav-link>
@@ -40,7 +40,7 @@
                         </button>
                     </x-slot>
                     <x-slot name="content">
-                        @if (Auth::user()?->is_admin)
+                        @if (Auth::user()?->isAdmin() || Auth::user()?->isStaff())
                             <x-dropdown-link :href="route('admin.dashboard')">
                                 {{ __('Admin Panel') }}
                             </x-dropdown-link>
@@ -74,7 +74,7 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
-            @if (Auth::user()?->is_admin)
+            @if (Auth::user()?->isAdmin() || Auth::user()?->isStaff())
                 <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
                     {{ __('Admin') }}
                 </x-responsive-nav-link>
